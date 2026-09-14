@@ -14,20 +14,31 @@ The system allows sensors to be registered, monitored and tested through a WPF d
 ## The solution contains three projects:
 
 SmartX.Shared – Shared models and services
+
 SmartX.API – ASP.NET Core Minimal API backend
+
 SmartX.Wpf – WPF desktop application
 
 # Main Features
 
 Sensor registration
+
 Duplicate sensor detection
+
 REST API with Swagger
+
 Live telemetry simulation
+
 Temperature, power and valve telemetry
+
 Warning and critical alerts
+
 System health score and badges
+
 Sensor file attachments
+
 Deployment validation
+
 Batch telemetry processing
 
 The API runs at:
