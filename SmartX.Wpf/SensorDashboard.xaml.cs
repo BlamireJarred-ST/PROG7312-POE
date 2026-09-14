@@ -83,6 +83,8 @@ public partial class SensorDashboard : Window
         }
         catch (HttpRequestException) { } // Dashboard will continue to function without the API connection
     }
+
+    // Initializes the dashboard, sets up the telemetry DataGrid, and loads registered sensors.
     public SensorDashboard()
     {
         InitializeComponent();
@@ -90,6 +92,7 @@ public partial class SensorDashboard : Window
         _ = LoadRegisteredSensorsAsync();
     }
 
+    // Handles the registration of a new sensor when the "Register" button is clicked.
     private async void RegisterButton_Click(object sender, RoutedEventArgs e)
     {
         // Read values from the form
@@ -110,6 +113,7 @@ public partial class SensorDashboard : Window
             return;
         }
 
+        // Validate MAC address format
         if (mac.Length != 17 || !mac.Contains(':'))
         {
             MessageBox.Show(
@@ -220,6 +224,7 @@ public partial class SensorDashboard : Window
                     MessageBoxImage.Error);
             }
         }
+        // Handle connection issues with the API
         catch (HttpRequestException)
         {
             MessageBox.Show(
