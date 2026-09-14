@@ -290,6 +290,7 @@ public partial class SensorDashboard : Window
         };
     }
 
+    // Handles the generation and sending of simulated telemetry data at each timer tick.
     private async void SimulationTimer_Tick(object? sender, EventArgs e)
     {
         // Don't start another request if the previous telemetry request is still running.
@@ -299,15 +300,18 @@ public partial class SensorDashboard : Window
 
         try
         {
-            // GENERATE
+            // retrive from API if the list of registered sensors is empty
             if (_registeredMacs.Count == 0)
             {
                 await LoadRegisteredSensorsAsync();
+                // Stops if there are no sensors
                 if (_registeredMacs.Count == 0) return;
             }
 
+            // Select sensor to simulate
             string mac;
 
+            // Use sensor selected in the ComboBox if available
             if (SimulationNodeSelector.SelectedItem != null)
             {
                 // Extract MAC from "AA:BB:CC:DD:EE:FF (NODE-01)"
@@ -323,10 +327,12 @@ public partial class SensorDashboard : Window
                 return;
             }
 
+            // Determin sensor telemetry
             string packetType = GetPacketTypeForMac(mac);
 
             TelemetryRecord record;
 
+            // Generate telemetry based on type
             switch (packetType)
             {
                 case "Temperature":
@@ -381,46 +387,43 @@ public partial class SensorDashboard : Window
                     }
             }
 
+            // Warnings 
             record.Severity = DetermineSeverity(record);
 
+            // Register anomaly if severity is not normal
             if (record.Severity != "Normal")
             {
                 RegisterAnomaly(record);
             }
 
-            // SEND
-
+            // Send telemetry to API
             string json = JsonSerializer.Serialize(record);
+            // HTTP body request
+            using var content = new StringContent(json, Encoding.UTF8, "application/json");
+            // Send telemetry to the API
+            var postResponse = await App.ApiClient.PostAsync( "/api/telemetry", content);
 
-            using var content = new StringContent(
-                json,
-                Encoding.UTF8,
-                "application/json");
-
-            var postResponse =
-                await App.ApiClient.PostAsync(
-                    "/api/telemetry",
-                    content);
-
+            // Stop if the API call failed
             if (!postResponse.IsSuccessStatusCode)
             {
                 return;
             }
 
-            // FETCH
-
-            var getResponse =
-                await App.ApiClient.GetAsync("/api/telemetry");
+            // Fetch updated telemetry
+            // Request telemetry records from the API to update the DataGrid
+            var getResponse = await App.ApiClient.GetAsync("/api/telemetry");
 
             if (!getResponse.IsSuccessStatusCode)
             {
                 return;
             }
 
-            string responseJson =
-                await getResponse.Content.ReadAsStringAsync();
+            // Read API response as JSON
+            string responseJson = await getResponse.Content.ReadAsStringAsync();
 
+            // Allow case-insensitive property matching for deserialization
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            // Convert API response back to telemetry data
             var records = JsonSerializer.Deserialize<List<TelemetryRecord>>(responseJson, options);
 
             if (records == null)
@@ -428,15 +431,16 @@ public partial class SensorDashboard : Window
                 return;
             }
 
-            // UPDATE DATAGRID
-
+            // Refresh the DataGrid with the latest telemetry records
             _telemetryRecords.Clear();
 
+            // Add each telemetry record to the ObservableCollection for display
             foreach (var telemetryRecord in records)
             {
                 _telemetryRecords.Add(telemetryRecord);
             }
         }
+        // Handle connection issues with the API gracefully
         catch (HttpRequestException) { }
         catch (Exception) { }
         finally
@@ -445,6 +449,7 @@ public partial class SensorDashboard : Window
         }
     }
 
+    // Handles the attachment of a file to a sensor when the "Attach File" button is clicked.
     private async void AttachFileButton_Click(object sender, RoutedEventArgs e)
     {
         string mac = MacAddressInput.Text.Trim();
@@ -559,6 +564,7 @@ public partial class SensorDashboard : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
+        // Handle connection issues with the API gracefully
         catch (HttpRequestException)
         {
             MessageBox.Show(
@@ -568,6 +574,7 @@ public partial class SensorDashboard : Window
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
         }
+        // Handle unexpected errors gracefully
         catch (Exception ex)
         {
             MessageBox.Show(
@@ -578,8 +585,10 @@ public partial class SensorDashboard : Window
         }
     }
 
+    // Determines the severity of a telemetry record based on its packet type and data value.
     private string DetermineSeverity(TelemetryRecord record)
     {
+        // Evaluate the severity based on the packet type and its corresponding thresholds
         switch (record.PacketType)
         {
             case "Temperature":
@@ -604,6 +613,7 @@ public partial class SensorDashboard : Window
                     return "Normal";
                 }
 
+            // Evaluate power consumption severity based on thresholds
             case "PowerWattage":
                 {
                     if (!double.TryParse(
@@ -628,6 +638,7 @@ public partial class SensorDashboard : Window
                     return "Normal";
                 }
 
+            // Evaluate valve state severity. A valve that is open is considered a warning.
             case "ValveState":
                 {
                     if (!bool.TryParse(
@@ -652,10 +663,10 @@ public partial class SensorDashboard : Window
         }
     }
 
+    // Registers an anomaly by reducing health, creating an alert, and updating the engagement UI.
     private void RegisterAnomaly(TelemetryRecord record)
     {
-        // Reduce health by 5 points.
-        // Health can never go below zero.
+        // Reduce health by 5 points and Health can never go below zero
         _healthScore = Math.Max(0, _healthScore - 5);
 
         // Create an alert message.
@@ -669,6 +680,7 @@ public partial class SensorDashboard : Window
         UpdateEngagementUI();
     }
 
+    // Updates the engagement UI elements, including health score, alerts list, and badges.
     private void UpdateEngagementUI()
     {
         // Update health score.
@@ -708,8 +720,10 @@ public partial class SensorDashboard : Window
         }
     }
 
+    // Checks if the user has earned any new badges based on their engagement and awards them accordingly.
     private void CheckAndAwardBadges()
     {
+        // Award badges based on the number of acknowledgements 
         if (_acknowledgeCount >= 5 &&
             !_earnedBadges.Contains("Anomaly Hunter"))
         {
@@ -722,6 +736,7 @@ public partial class SensorDashboard : Window
                 MessageBoxImage.Information);
         }
 
+        // Award badge if the user has acknowledged 10 alerts and hasn't earned it yet
         if (_acknowledgeCount >= 10 &&
             !_earnedBadges.Contains("System Guardian"))
         {
@@ -735,30 +750,31 @@ public partial class SensorDashboard : Window
         }
     }
 
-private void AcknowledgeButton_Click(
+    // Handles the acknowledgement of alerts when the "Acknowledge" button is clicked, restoring health and updating the UI
+    private void AcknowledgeButton_Click(
     object sender,
     RoutedEventArgs e)
     {
-        // Nothing to acknowledge.
+        // Nothing to acknowledge
         if (_pendingAlerts.Count == 0)
         {
             return;
         }
 
-        // Remove the oldest alert.
+        // Remove the oldest alert
         _pendingAlerts.RemoveAt(0);
 
-        // Restore 2 health points.
-        // Health can never exceed 100.
-        _healthScore = Math.Min(100, _healthScore + 2);
+        // Restore 3 health points Health can never exceed 100
+        _healthScore = Math.Min(100, _healthScore + 3);
 
-        // Increase acknowledgement count.
+        // Increase acknowledgement count
         _acknowledgeCount++;
 
-        // Refresh the UI.
+        // Refresh the UI
         UpdateEngagementUI();
     }
-    
+
+    // Ensure the simulation timer is stopped when the window is closed to prevent background operations.
     protected override void OnClosed(EventArgs e)
     {
         _simulationTimer?.Stop();
@@ -766,7 +782,7 @@ private void AcknowledgeButton_Click(
         base.OnClosed(e);
     }
 
-
+    // Clears the sensor registration form inputs to their default state.
     private void ClearForm()
     {
         MacAddressInput.Text = string.Empty;
