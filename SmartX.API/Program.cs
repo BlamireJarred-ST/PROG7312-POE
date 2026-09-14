@@ -4,11 +4,13 @@ using SmartX.Shared.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Enable Swagger when API is running
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,21 +19,26 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+//Data storage
+// Stores registered sensors by MAC address
 ConcurrentDictionary<string, Sensor> sensors = new();
 
+// Stores telemetry records in memory
 List<TelemetryRecord> telemetryLog = new();
 object telemetryLock = new();
 
-ConcurrentDictionary<string, List<SensorAttachment>> sensorAttachments =
-    new ConcurrentDictionary<string, List<SensorAttachment>>();
+// Stores sensor attachments by MAC address
+ConcurrentDictionary<string, List<SensorAttachment>> sensorAttachments = new ConcurrentDictionary<string, List<SensorAttachment>>();
 
 // Nodes for the sensor 
+// Facility created for demonstration
 var facility = new Facility
 {
     Name = "Facility A",
     IsActive = true
 };
 
+// Zone created for demonstration
 var zone = new Zone
 {
     Name = "Zone 1",
@@ -39,6 +46,7 @@ var zone = new Zone
     Parent = facility
 };
 
+// SubZone created for demonstration
 var subZone = new SubZone
 {
     Name = "Sub-Zone 1",
@@ -46,6 +54,7 @@ var subZone = new SubZone
     Parent = zone
 };
 
+// Sensor nodes created for demonstration
 var sensorNode = new SensorNode
 {
     Name = "Node 1",
@@ -55,6 +64,7 @@ var sensorNode = new SensorNode
     Parent = subZone
 };
 
+// Additional sensor nodes created for demonstration
 var sensorNode2 = new SensorNode
 {
     Name = "Node 2",
@@ -64,6 +74,7 @@ var sensorNode2 = new SensorNode
     Parent = subZone
 };
 
+// Additional sensor node created for demonstration
 var sensorNode3 = new SensorNode
 {
     Name = "Node 3",
@@ -73,6 +84,7 @@ var sensorNode3 = new SensorNode
     Parent = subZone
 };
 
+// Inactive zone created for demonstration
 var inactiveZone = new Zone
 {
     Name = "Zone 2 (Offline)",
@@ -80,6 +92,7 @@ var inactiveZone = new Zone
     Parent = facility
 };
 
+// Inactive sensor node created for demonstration
 var offlineNode = new SensorNode
 {
     Name = "Node Offline",
@@ -89,12 +102,18 @@ var offlineNode = new SensorNode
     Parent = inactiveZone
 };
 
+// Add Zone to  facility
 facility.Zones.Add(zone);
+// Add SubZone to Zone
 zone.SubZones.Add(subZone);
+// Add SubZone to inactive Zone
 subZone.Nodes.Add(sensorNode);
+// Add SubZone to inactive Zone
 subZone.Nodes.Add(sensorNode2);
+// Add SubZone to inactive Zone
 subZone.Nodes.Add(sensorNode3);
 
+// Inactive Zone
 Dictionary<string, SensorNode> sensorNodes = new()
 {
     [sensorNode.MacAddress] = sensorNode,
@@ -103,6 +122,7 @@ Dictionary<string, SensorNode> sensorNodes = new()
     ["FF:FF:FF:FF:FF:FF"] = offlineNode
 };
 
+// Pre-populate some sensors for demonstration
 sensors.TryAdd("AA:BB:CC:DD:EE:FF", new Sensor
 {
     MacAddress = "AA:BB:CC:DD:EE:FF",
@@ -130,7 +150,9 @@ sensors.TryAdd("AA:BB:CC:DD:EE:03", new Sensor
     Category = SensorCategory.Actuator
 });
 
-// POST /api/sensors — Register a new sensor
+// API Endpoints
+
+// Register a new sensor
 app.MapPost("/api/sensors", (Sensor sensor) =>
 {
     if (sensors.ContainsKey(sensor.MacAddress))
@@ -150,7 +172,7 @@ app.MapPost("/api/sensors", (Sensor sensor) =>
 .WithOpenApi();
 
 
-// GET /api/sensors — Get all registered sensors
+// Get all registered sensors
 app.MapGet("/api/sensors", () =>
 {
     return Results.Ok(sensors.Values.ToList());
@@ -158,7 +180,7 @@ app.MapGet("/api/sensors", () =>
 .WithName("GetSensors")
 .WithOpenApi();
 
-// POST /api/telemetry — ingest a single telemetry record
+// single telemetry record
 app.MapPost("/api/telemetry", (TelemetryRecord record) =>
 {
     record.Timestamp = DateTime.UtcNow;
@@ -173,7 +195,7 @@ app.MapPost("/api/telemetry", (TelemetryRecord record) =>
 .WithName("IngestTelemetry")
 .WithOpenApi();
 
-// GET /api/telemetry — retrieve the latest 50 records
+// retrieve the latest 50 records
 app.MapGet("/api/telemetry", () =>
 {
     List<TelemetryRecord> latestRecords;
@@ -191,7 +213,7 @@ app.MapGet("/api/telemetry", () =>
 .WithName("GetTelemetry")
 .WithOpenApi();
 
-// GET /api/telemetry/{mac} — retrieve telemetry for a specific sensor
+// Retrieve telemetry for a specific sensor
 app.MapGet("/api/telemetry/{mac}", (string mac) =>
 {
     List<TelemetryRecord> records;
@@ -218,7 +240,7 @@ app.MapGet("/api/telemetry/{mac}", (string mac) =>
 .WithName("GetTelemetryByMac")
 .WithOpenApi();
 
-// POST /api/telemetry/batch — ingest multiple telemetry batches
+// ingest multiple telemetry batches
 app.MapPost("/api/telemetry/batch", (TelemetryBatchRequest request) =>
 {
     if (request.DeviceIds.Length != request.Batches.Length)
@@ -272,7 +294,7 @@ app.MapPost("/api/telemetry/batch", (TelemetryBatchRequest request) =>
 .WithName("IngestTelemetryBatch")
 .WithOpenApi();
 
-// GET /api/sensors/{mac}/validate
+// Validates the deployment of a sensor node
 app.MapGet("/api/sensors/{mac}/validate", (string mac) =>
 {
     if (!sensorNodes.TryGetValue(mac, out var node))
@@ -304,12 +326,11 @@ app.MapGet("/api/sensors/{mac}/validate", (string mac) =>
 .WithName("ValidateSensorNode")
 .WithOpenApi();
 
-// POST /api/sensors/{mac}/attachments
-// Upload a file to a registered sensor profile.
+// Upload a file to a registered sensor profile
 app.MapPost("/api/sensors/{mac}/attachments",
     async (string mac, IFormFile file) =>
     {
-        // Check that the sensor exists.
+        // Check that the sensor exists
         if (!sensors.ContainsKey(mac))
         {
             return Results.NotFound(new
@@ -318,7 +339,7 @@ app.MapPost("/api/sensors/{mac}/attachments",
             });
         }
 
-        // Validate the uploaded file.
+        // Validate the uploaded file
         if (file == null || file.Length == 0)
         {
             return Results.BadRequest(new
@@ -327,14 +348,14 @@ app.MapPost("/api/sensors/{mac}/attachments",
             });
         }
 
-        // Read the uploaded file into memory.
+        // Read the uploaded file into memory
         using var stream = new MemoryStream();
 
         await file.CopyToAsync(stream);
 
         byte[] fileBytes = stream.ToArray();
 
-        // Create the attachment object.
+        // Create the attachment object
         var attachment = new SensorAttachment
         {
             FileName = file.FileName,
@@ -344,7 +365,7 @@ app.MapPost("/api/sensors/{mac}/attachments",
             UploadedAt = DateTime.UtcNow
         };
 
-        // Get or create the attachment list for this sensor.
+        // Get or create the attachment list for this sensor
         var list = sensorAttachments.GetOrAdd(mac, _ => new List<SensorAttachment>());
 
         lock (list)   // lock the list itself — ConcurrentDictionary protects the dict,
@@ -352,7 +373,7 @@ app.MapPost("/api/sensors/{mac}/attachments",
             list.Add(attachment);
         }
 
-        // Return a summary without the binary FileData.
+        // Return a summary without the binary FileData
         return Results.Created(
             $"/api/sensors/{mac}/attachments",
             new
@@ -367,11 +388,10 @@ app.MapPost("/api/sensors/{mac}/attachments",
 .DisableAntiforgery()
 .WithOpenApi();
 
-// GET /api/sensors/{mac}/attachments
-// List files attached to a sensor.
+// List files attached to a sensor
 app.MapGet("/api/sensors/{mac}/attachments", (string mac) =>
 {
-    // Check that the sensor exists.
+    // Check that the sensor exists
     if (!sensors.ContainsKey(mac))
     {
         return Results.NotFound(new
@@ -380,14 +400,13 @@ app.MapGet("/api/sensors/{mac}/attachments", (string mac) =>
         });
     }
 
-    // Get the attachment list.
+    // Get the attachment list
     if (!sensorAttachments.TryGetValue(mac, out var list))
     {
         return Results.Ok(new List<object>());
     }
 
-    // Return metadata only.
-    // Do not return FileData.
+    // Return metadata only
     var attachments = list.Select(attachment => new
     {
         attachment.FileName,
@@ -401,7 +420,7 @@ app.MapGet("/api/sensors/{mac}/attachments", (string mac) =>
 .WithName("GetAttachments")
 .WithOpenApi();
 
-// GET /api/telemetry/thresholds — returns the anomaly thresholds used by the system
+// returns the anomaly thresholds used by the system
 app.MapGet("/api/telemetry/thresholds", () =>
 {
     return Results.Ok(new
