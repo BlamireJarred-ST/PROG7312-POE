@@ -3,13 +3,13 @@ using System.Windows;
 
 namespace SmartX.Wpf
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
+    // Interaction logic for App.xaml
     public partial class App : Application
     {
+        // Shared HTTP vlient for the WPF application
         public static readonly HttpClient ApiClient = new HttpClient
         {
+            // Base adress of SmartX API 
             BaseAddress = new Uri("https://localhost:7078")
         };
     }
