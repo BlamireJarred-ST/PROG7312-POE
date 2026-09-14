@@ -3,8 +3,9 @@ using System.Text.Json.Serialization;
 
 namespace SmartX.Shared.Models;
 
-// Defines the category of a sensor, which can be Environmental, PowerConsumption, or Actuator.
+// Represents enum values as strings
 [JsonConverter(typeof(JsonStringEnumConverter))]
+// Defines the category of a sensor, which can be Environmental, PowerConsumption, or Actuator.
 public enum SensorCategory
 {
     // Measures temprature
