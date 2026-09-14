@@ -1,0 +1,49 @@
+﻿<Window x:Class="SmartX.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SmartX.Wpf"
+        mc:Ignorable="d"
+        Title="SmartX — IoT Mesh Ecosystem"
+        Height="600" Width="900"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <StackPanel HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+
+            <TextBlock Text="SmartX"
+                   FontSize="32"
+                   FontWeight="Bold"
+                   HorizontalAlignment="Center"
+                   Margin="0,0,0,25"/>
+
+            <Button Content="Sensor Data Ingestion and Telemetry"
+                Width="350"
+                Height="60"
+                Margin="0,8"
+                FontSize="15"
+                FontWeight="SemiBold"
+                Background="#2D6CDF"
+                Foreground="White"
+                BorderThickness="0"
+                Click="SensorPillarButton_Click"/>
+
+            <Button Content="Real-Time Command Stream and History"
+                Width="350"
+                Height="60"
+                Margin="0,8"
+                FontSize="15"
+                FontWeight="SemiBold"
+                IsEnabled="False"/>
+
+            <Button Content="Network Topology and Mesh Routing"
+                Width="350"
+                Height="60"
+                Margin="0,8"
+                FontSize="15"
+                FontWeight="SemiBold"
+                IsEnabled="False"/>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,286 @@
+﻿<Window x:Class="SmartX.Wpf.SensorDashboard"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Sensor Data Ingestion and Telemetry"
+        Height="700"
+        Width="1000"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Margin="20">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="Sensor Data Ingestion and Telemetry"
+                   FontSize="20"
+                   FontWeight="Bold"
+                   Margin="0,0,0,16"/>
+
+        <GroupBox Grid.Row="1"
+                  Header="Register New Sensor"
+                  Padding="12"
+                  Margin="0,0,0,12">
+
+            <Grid>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="140"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           Text="MAC Address:"
+                           VerticalAlignment="Center"
+                           Margin="0,6"/>
+
+                <TextBox x:Name="MacAddressInput"
+                         Grid.Row="0"
+                         Grid.Column="1"
+                         Margin="0,6"
+                         Padding="5"
+                         ToolTip="Example: AA:BB:CC:DD:EE:FF"/>
+
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           Text="Room:"
+                           VerticalAlignment="Center"
+                           Margin="0,6"/>
+
+                <TextBox x:Name="RoomInput"
+                         Grid.Row="1"
+                         Grid.Column="1"
+                         Margin="0,6"
+                         Padding="5"/>
+
+                <TextBlock Grid.Row="2"
+                           Grid.Column="0"
+                           Text="Zone:"
+                           VerticalAlignment="Center"
+                           Margin="0,6"/>
+
+                <TextBox x:Name="ZoneInput"
+                         Grid.Row="2"
+                         Grid.Column="1"
+                         Margin="0,6"
+                         Padding="5"/>
+
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Text="Node ID:"
+                           VerticalAlignment="Center"
+                           Margin="0,6"/>
+
+                <TextBox x:Name="NodeIdInput"
+                         Grid.Row="3"
+                         Grid.Column="1"
+                         Margin="0,6"
+                         Padding="5"/>
+
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Text="Category:"
+                           VerticalAlignment="Center"
+                           Margin="0,6"/>
+
+                <ComboBox x:Name="CategoryInput"
+                          Grid.Row="4"
+                          Grid.Column="1"
+                          Margin="0,6"
+                          SelectedIndex="0">
+
+                    <ComboBoxItem Content="Environmental"/>
+                    <ComboBoxItem Content="Power Consumption"/>
+                    <ComboBoxItem Content="Actuator"/>
+
+                </ComboBox>
+
+            </Grid>
+
+        </GroupBox>
+
+        <StackPanel Grid.Row="2"
+            Orientation="Horizontal"
+            Margin="0,0,0,15"
+            VerticalAlignment="Center">
+
+            <Button x:Name="RegisterButton"
+            Content="Register Sensor"
+            Width="150" Height="35"
+            Click="RegisterButton_Click"/>
+
+            <Button x:Name="AttachFileButton"
+            Content="Attach File to Sensor"
+            Width="170" Height="35"
+            Margin="12,0,0,0"
+            Click="AttachFileButton_Click"
+            ToolTip="Attach a config file, photo, or log to a registered sensor"/>
+
+            <Separator Width="1" Height="30" Margin="16,0"/>
+
+            <TextBlock Text="Simulate Node:"
+               VerticalAlignment="Center"
+               FontWeight="SemiBold"
+               Margin="0,0,8,0"/>
+
+            <ComboBox x:Name="SimulationNodeSelector"
+              Width="200" Height="35"
+              VerticalContentAlignment="Center"
+              ToolTip="Select which sensor node to simulate"/>
+
+            <Button x:Name="StartSimulationButton"
+            Content="Start Simulation"
+            Width="160" Height="35"
+            Margin="12,0,0,0"
+            Click="StartSimulationButton_Click"/>
+
+        </StackPanel>
+
+        <!-- System Health Monitor -->
+        <GroupBox Grid.Row="3"
+          Header="System Health Monitor"
+          Margin="0,0,0,8"
+          Padding="8">
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Health Score and Badges -->
+                <StackPanel Grid.Column="0"
+                    Margin="0,0,12,0">
+
+                    <!-- Health Score -->
+                    <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,8">
+
+                        <TextBlock Text="System Health Score: "
+                           FontSize="16"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+
+                        <TextBlock x:Name="HealthScoreText"
+                           Text="100"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="Green"
+                           VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Badge Display -->
+                    <TextBlock Text="Badges:"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4"/>
+
+                    <TextBlock x:Name="BadgeText"
+                       Text="No badges earned yet"
+                       TextWrapping="Wrap"
+                       Foreground="#555555"/>
+
+                    <!-- Acknowledge Button -->
+                    <Button x:Name="AcknowledgeButton"
+                    Content="Acknowledge Alert (+2 Health)"
+                    Margin="0,8,0,0"
+                    Width="200"
+                    HorizontalAlignment="Left"
+                    IsEnabled="False"
+                    Click="AcknowledgeButton_Click"
+                    ToolTip="Acknowledge the oldest pending alert to restore health"/>
+                </StackPanel>
+
+                <!-- Right: Pending Alerts -->
+                <StackPanel Grid.Column="1">
+
+                    <TextBlock Text="Pending Alerts:"
+                       FontWeight="Bold"
+                       Margin="0,0,0,4"/>
+
+                    <ListBox x:Name="AlertsListBox"
+                     Height="100"
+                     Background="#FFF8F8"/>
+                </StackPanel>
+
+            </Grid>
+
+        </GroupBox>
+
+        <GroupBox Grid.Row="4"
+          Header="Live Telemetry Feed"
+          Margin="0,12,0,0"
+          Padding="8">
+
+            <DataGrid x:Name="TelemetryGrid"
+              AutoGenerateColumns="False"
+              IsReadOnly="True"
+              CanUserSortColumns="True"
+              AlternatingRowBackground="#F5F5F5"
+              GridLinesVisibility="Horizontal">
+
+                <DataGrid.Columns>
+
+                    <DataGridTextColumn Header="Timestamp"
+                                Binding="{Binding Timestamp, StringFormat=HH:mm:ss}"
+                                Width="90"/>
+
+                    <DataGridTextColumn Header="Device ID"
+                                Binding="{Binding DeviceId}"
+                                Width="160"/>
+
+                    <DataGridTextColumn Header="Type"
+                                Binding="{Binding PacketType}"
+                                Width="130"/>
+
+                    <DataGridTextColumn Header="Value"
+                                Binding="{Binding DataValue}"
+                                Width="100"/>
+
+                    <DataGridTextColumn Header="Severity"
+                                Binding="{Binding Severity}"
+                                Width="90"/>
+
+                </DataGrid.Columns>
+
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+
+                        <Style.Triggers>
+
+                            <DataTrigger Binding="{Binding Severity}"
+                                 Value="Warning">
+                                <Setter Property="Background"
+                                Value="#FFF9C4"/>
+                            </DataTrigger>
+
+                            <DataTrigger Binding="{Binding Severity}"
+                                 Value="Critical">
+                                <Setter Property="Background"
+                                Value="#FFCDD2"/>
+                            </DataTrigger>
+
+                        </Style.Triggers>
+
+                    </Style>
+                </DataGrid.RowStyle>
+
+            </DataGrid>
+
+        </GroupBox>
+    </Grid>
+
+</Window>

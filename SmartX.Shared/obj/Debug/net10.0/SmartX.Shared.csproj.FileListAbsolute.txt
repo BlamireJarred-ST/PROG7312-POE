@@ -1,0 +1,12 @@
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\bin\Debug\net10.0\SmartX.Shared.deps.json
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\bin\Debug\net10.0\SmartX.Shared.dll
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\bin\Debug\net10.0\SmartX.Shared.pdb
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.AssemblyInfoInputs.cache
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.AssemblyInfo.cs
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.csproj.CoreCompileInputs.cache
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.dll
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\refint\SmartX.Shared.dll
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.Shared.pdb
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\ref\SmartX.Shared.dll
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.Shared\obj\Debug\net10.0\SmartX.S.760530F7.Up2Date

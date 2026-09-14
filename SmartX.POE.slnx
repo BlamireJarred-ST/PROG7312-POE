@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="Dockerfile.txt" />
+  </Folder>
+  <Project Path="SmartX.API/SmartX.API.csproj" Id="e093341e-f663-460d-9df4-dc1c0c7b069e" />
+  <Project Path="SmartX.Shared/SmartX.Shared.csproj" Id="6a41da77-1909-4f2e-b5f2-47c2d4eb2192" />
+  <Project Path="SmartX.Wpf/SmartX.Wpf.csproj" Id="4e4557b4-aca4-421f-b982-82fa03cdb349" />
+</Solution>
