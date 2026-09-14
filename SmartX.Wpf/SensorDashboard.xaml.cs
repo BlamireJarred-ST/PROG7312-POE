@@ -13,14 +13,21 @@ using System.Windows.Media;
 
 namespace SmartX.Wpf;
 
+// Handles the sensor dashboard UI, including telemetry simulation, sensor registration, and engagement features.
 public partial class SensorDashboard : Window
 {
+    // Storage for telemetry records displayed in the DataGrid.
     private readonly ObservableCollection<TelemetryRecord> _telemetryRecords = new();
+    // Timer for simulated telemetry data
     private DispatcherTimer? _simulationTimer;
+    // Random number generator for simulating telemetry data
     private readonly Random _random = new();
+    // Indicates whether the telemetry simulation is currently running
     private bool _isSimulating = false;
+    // Stops telemetry data being processed at the same time
     private bool _isBusy = false;
-    
+
+    //Health monitoring and engagement
     private int _healthScore = 100;
     private int _acknowledgeCount = 0;
     private readonly List<string> _pendingAlerts = new();
@@ -30,9 +37,11 @@ public partial class SensorDashboard : Window
     private readonly double _tempWarningThreshold = 35.0;
     private readonly double _tempCriticalThreshold = 45.0;
 
+    // Sensor information
     private List<string> _registeredMacs = new();
+    private List<Sensor> _loadedSensors = new();
 
-    // Add this method and call it from the constructor
+    // Retrive sensors from SmartX.API
     private async Task LoadRegisteredSensorsAsync()
     {
         try
@@ -48,8 +57,8 @@ public partial class SensorDashboard : Window
 
                 if (sensors != null)
                 {
+                    // Store the loaded sensors and their MAC addresses for simulation
                     _loadedSensors = sensors;
-
                     _registeredMacs = sensors
                         .Select(s => s.MacAddress)
                         .ToList();
@@ -65,13 +74,14 @@ public partial class SensorDashboard : Window
                                 $"{sensor.MacAddress} ({sensor.NodeId})");
                         }
 
+                        // Select the first item by default if available
                         if (SimulationNodeSelector.Items.Count > 0)
                             SimulationNodeSelector.SelectedIndex = 0;
                     });
                 }
             }
         }
-        catch (HttpRequestException) { }
+        catch (HttpRequestException) { } // Dashboard will continue to function without the API connection
     }
     public SensorDashboard()
     {
@@ -246,8 +256,6 @@ public partial class SensorDashboard : Window
 
         StartSimulationButton.Content = "Stop Simulation";
     }
-
-    private List<Sensor> _loadedSensors = new();
 
     private string GetPacketTypeForMac(string mac)
     {
