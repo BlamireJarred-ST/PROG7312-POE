@@ -162,11 +162,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Health Score and Badges -->
                 <StackPanel Grid.Column="0"
                     Margin="0,0,12,0">
 
-                    <!-- Health Score -->
                     <StackPanel Orientation="Horizontal"
                         Margin="0,0,0,8">
 
@@ -182,8 +180,7 @@
                            Foreground="Green"
                            VerticalAlignment="Center"/>
                     </StackPanel>
-
-                    <!-- Badge Display -->
+                    
                     <TextBlock Text="Badges:"
                        FontWeight="Bold"
                        Margin="0,0,0,4"/>
@@ -193,7 +190,6 @@
                        TextWrapping="Wrap"
                        Foreground="#555555"/>
 
-                    <!-- Acknowledge Button -->
                     <Button x:Name="AcknowledgeButton"
                     Content="Acknowledge Alert (+2 Health)"
                     Margin="0,8,0,0"
@@ -204,7 +200,6 @@
                     ToolTip="Acknowledge the oldest pending alert to restore health"/>
                 </StackPanel>
 
-                <!-- Right: Pending Alerts -->
                 <StackPanel Grid.Column="1">
 
                     <TextBlock Text="Pending Alerts:"
