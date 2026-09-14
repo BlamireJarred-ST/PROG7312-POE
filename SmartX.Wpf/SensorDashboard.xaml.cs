@@ -236,32 +236,40 @@ public partial class SensorDashboard : Window
         }
     }
 
+    // Handles the start/stop of telemetry simulation when the "Start Simulation" button is clicked.
     private void StartSimulationButton_Click(object sender, RoutedEventArgs e)
     {
+        // If simulation is already running, stop it
         if (_isSimulating)
         {
             _simulationTimer?.Stop();
 
             _isSimulating = false;
 
+            // Update button text to indicate simulation can be started again
             StartSimulationButton.Content = "Start Simulation";
 
             return;
         }
 
+        // Timer setup for generating and sending telemetry data every 2 seconds
         _simulationTimer = new DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(2)
         };
 
+        //Call the SimulationTimer_Tick method every time the timer ticks
         _simulationTimer.Tick += SimulationTimer_Tick;
+        // Start generating data
         _simulationTimer.Start();
 
         _isSimulating = true;
 
+        // Update button text to indicate simulation can be stopped
         StartSimulationButton.Content = "Stop Simulation";
     }
 
+    // Determines the packet type based on the sensor's category for a given MAC address.
     private string GetPacketTypeForMac(string mac)
     {
         // Find the sensor in the loaded list
@@ -270,14 +278,15 @@ public partial class SensorDashboard : Window
                 mac, StringComparison.OrdinalIgnoreCase));
 
         if (sensor == null)
-            return "Temperature";  // safe default
+            return "Temperature";  // default
 
+        // Convert sensor category 
         return sensor.Category switch
         {
-            SensorCategory.Environmental => "Temperature",
-            SensorCategory.PowerConsumption => "PowerWattage",
-            SensorCategory.Actuator => "ValveState",
-            _ => "Temperature"
+            SensorCategory.Environmental => "Temperature",      // Environmental sensors report temperature
+            SensorCategory.PowerConsumption => "PowerWattage",  // Power consumption sensors report wattage
+            SensorCategory.Actuator => "ValveState",            // Actuator sensors report valve state
+            _ => "Temperature"                                  // default 
         };
     }
 
