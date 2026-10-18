@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using SmartX.Shared.Models;
 using SmartX.Shared.Services;
+using SmartX.API;
+using SmartX.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +10,19 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Part 2: real-time command stream services (singletons - they hold the live in-memory state)
+builder.Services.AddSingleton<DeviceRegistry>();     // Dictionary: live devices by MAC
+builder.Services.AddSingleton<HistoryStore>();       // SortedDictionary: readings by timestamp
+builder.Services.AddSingleton<CommandHistory>();     // Stack: manual override undo history
+builder.Services.AddSingleton<AlertCenter>();        // HashSet: active unique error states
+builder.Services.AddSingleton<ActionEngine>();       // predictive / recommendation engine
+builder.Services.AddSingleton<TelemetryPipeline>();  // Queue + PriorityQueue
+builder.Services.AddHostedService<TelemetryWorker>();
+builder.Services.AddHostedService<HeartbeatMonitor>();
+
 var app = builder.Build();
+
+var registry = app.Services.GetRequiredService<DeviceRegistry>();
 
 // Enable Swagger when API is running
 if (app.Environment.IsDevelopment())
@@ -150,6 +164,15 @@ sensors.TryAdd("AA:BB:CC:DD:EE:03", new Sensor
     Category = SensorCategory.Actuator
 });
 
+// Part 2: every pre-populated sensor becomes a live device in the registry Dictionary
+foreach (var seededSensor in sensors.Values)
+{
+    registry.Register(seededSensor);
+}
+
+// Part 2 endpoints (devices, commands, alerts, pipeline, suggestions)
+app.MapPart2Endpoints();
+
 // API Endpoints
 
 // Register a new sensor
@@ -166,6 +189,8 @@ app.MapPost("/api/sensors", (Sensor sensor) =>
         });
     }
 
+    registry.Register(sensor); // Part 2: make the new sensor a live device
+
     return Results.Created($"/api/sensors/{sensor.MacAddress}", sensor);
 })
 .WithName("RegisterSensor")
@@ -181,9 +206,12 @@ app.MapGet("/api/sensors", () =>
 .WithOpenApi();
 
 // single telemetry record
-app.MapPost("/api/telemetry", (TelemetryRecord record) =>
+app.MapPost("/api/telemetry", (TelemetryRecord record, TelemetryPipeline pipeline) =>
 {
     record.Timestamp = DateTime.UtcNow;
+
+    // Part 2: classify and queue (FIFO queue, or priority queue when critical)
+    pipeline.Enqueue(record);
 
     lock (telemetryLock)
     {
@@ -241,7 +269,7 @@ app.MapGet("/api/telemetry/{mac}", (string mac) =>
 .WithOpenApi();
 
 // ingest multiple telemetry batches
-app.MapPost("/api/telemetry/batch", (TelemetryBatchRequest request) =>
+app.MapPost("/api/telemetry/batch", (TelemetryBatchRequest request, TelemetryPipeline pipeline) =>
 {
     if (request.DeviceIds.Length != request.Batches.Length)
     {
@@ -263,6 +291,12 @@ app.MapPost("/api/telemetry/batch", (TelemetryBatchRequest request) =>
         }
 
         List<TelemetryRecord> records = processor.ProcessBatches();
+
+        // Part 2: queue every record for processing
+        foreach (var batchRecord in records)
+        {
+            pipeline.Enqueue(batchRecord);
+        }
 
         lock (telemetryLock)
         {

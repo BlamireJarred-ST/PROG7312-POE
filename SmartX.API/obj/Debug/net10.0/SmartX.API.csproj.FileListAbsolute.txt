@@ -37,3 +37,4 @@ C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\Smart
 C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.API\obj\Debug\net10.0\SmartX.API.pdb
 C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.API\obj\Debug\net10.0\SmartX.API.genruntimeconfig.cache
 C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.API\obj\Debug\net10.0\ref\SmartX.API.dll
+C:\Users\USER-PC\OneDrive\Desktop\Uni work\in progress\PROG7312\SmartX.POE\SmartX.API\obj\Debug\net10.0\SmartX.API.sourcelink.json
