@@ -1,0 +1,205 @@
+<UserControl x:Class="SmartX.Wpf.CommandStreamView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+
+    <UserControl.Resources>
+        <Style x:Key="OverrideButton" TargetType="Button">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="8,6"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="230"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title + connection / queue status -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                <TextBlock x:Name="ConnectionText" Text="● Connecting..." FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                <TextBlock x:Name="QueueText" Foreground="#555555" FontSize="12" HorizontalAlignment="Right"/>
+            </StackPanel>
+            <TextBlock Text="Real-Time Command Stream and History" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <!-- Search / filter + simulation tools -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,10">
+            <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <TextBox x:Name="SearchBox" Width="220" Padding="5" Margin="0,0,10,0"
+                     ToolTip="MAC, node, room, zone or category. Press Enter to log the search."
+                     TextChanged="SearchBox_TextChanged"
+                     KeyDown="SearchBox_KeyDown"
+                     LostFocus="SearchBox_LostFocus"/>
+
+            <TextBlock Text="Category:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <ComboBox x:Name="CategoryFilter" Width="150" Margin="0,0,10,0" SelectionChanged="Filter_Changed"/>
+
+            <TextBlock Text="Alert state:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <ComboBox x:Name="StateFilter" Width="120" Margin="0,0,10,0" SelectionChanged="Filter_Changed"/>
+
+            <Button Content="Clear" Width="60" Margin="0,0,24,0" Click="ClearFilters_Click"/>
+
+            <Button x:Name="SimulateAlertButton" Content="Simulate Critical Alert" Padding="10,4" Margin="0,0,8,0"
+                    Click="SimulateAlert_Click"
+                    ToolTip="Sends a critical packet for the selected device through the priority queue"/>
+            <Button x:Name="PauseButton" Content="Pause Pipeline" Padding="10,4" Margin="0,0,8,0"
+                    Click="PauseButton_Click"
+                    ToolTip="Holds the queue worker so you can see FIFO vs priority ordering"/>
+            <Button Content="Seed Demo Patterns" Padding="10,4"
+                    Click="SeedHistory_Click"
+                    ToolTip="Trains the Action Engine with a sample alert -> search -> command pattern"/>
+        </WrapPanel>
+
+        <!-- Devices + override + suggestions -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="370"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Header="Live Devices" Padding="6" Margin="0,0,10,0">
+                <DataGrid x:Name="DevicesGrid"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          SelectionMode="Single"
+                          CanUserSortColumns="True"
+                          GridLinesVisibility="Horizontal"
+                          SelectionChanged="DevicesGrid_SelectionChanged">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="⚑" Binding="{Binding FlagMark}" Width="28"/>
+                        <DataGridTextColumn Header="Node" Binding="{Binding NodeId}" Width="95"/>
+                        <DataGridTextColumn Header="MAC Address" Binding="{Binding MacAddress}" Width="135"/>
+                        <DataGridTextColumn Header="Room" Binding="{Binding Room}" Width="95"/>
+                        <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="115"/>
+                        <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="75"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding PacketType}" Width="100"/>
+                        <DataGridTextColumn Header="Value" Binding="{Binding LastValue}" Width="70"/>
+                        <DataGridTextColumn Header="Alert State" Binding="{Binding AlertState}" Width="80"/>
+                        <DataGridTextColumn Header="Outputs" Binding="{Binding OutputSummary}" Width="*"/>
+                        <DataGridTextColumn Header="Last Seen" Binding="{Binding LastSeenLocal, StringFormat=HH:mm:ss}" Width="70"/>
+                    </DataGrid.Columns>
+
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding AlertState}" Value="Warning">
+                                    <Setter Property="Background" Value="#FFF9C4"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding AlertState}" Value="Critical">
+                                    <Setter Property="Background" Value="#FFCDD2"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding AlertState}" Value="Offline">
+                                    <Setter Property="Background" Value="#E0E0E0"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Flagged}" Value="True">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </GroupBox>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <GroupBox Grid.Row="0" Header="Manual Override" Padding="6" Margin="0,0,0,8">
+                    <StackPanel>
+                        <TextBlock x:Name="SelectedDeviceText"
+                                   Text="Select a device in the grid"
+                                   FontWeight="SemiBold" TextWrapping="Wrap" Margin="3,0,3,6"/>
+
+                        <UniformGrid x:Name="OverridePanel" Columns="2" IsEnabled="False">
+                            <Button Content="Pump ON" Tag="PumpOn" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                            <Button Content="Pump OFF" Tag="PumpOff" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                            <Button Content="Relay ON" Tag="RelayOn" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                            <Button Content="Relay OFF" Tag="RelayOff" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                            <Button Content="Valve OPEN" Tag="ValveOpen" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                            <Button Content="Valve CLOSE" Tag="ValveClose" Style="{StaticResource OverrideButton}" Click="OverrideButton_Click"/>
+                        </UniformGrid>
+
+                        <Button x:Name="UndoButton" Content="Undo Last Command" Margin="3,8,3,0" Padding="8,6"
+                                IsEnabled="False" Click="UndoButton_Click"/>
+
+                        <TextBlock x:Name="FeedbackText" TextWrapping="Wrap" Margin="3,6,3,0" Foreground="#555555"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Grid.Row="1" Header="Suggested Actions / Automated Insights" Padding="6">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <ListBox x:Name="SuggestionsList" Grid.Row="0"
+                                 HorizontalContentAlignment="Stretch"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 MouseDoubleClick="SuggestionsList_DoubleClick">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,3">
+                                        <TextBlock FontWeight="Bold" TextWrapping="Wrap">
+                                            <Run Text="[" /><Run Text="{Binding Kind, Mode=OneWay}"/><Run Text="] "/><Run Text="{Binding Title, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Detail}" TextWrapping="Wrap" Foreground="#555555" FontSize="12"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,6,0,0">
+                            <Button Content="Apply Selected" Padding="10,4" Margin="0,0,8,0" Click="ApplySuggestion_Click"/>
+                            <TextBlock Text="Double-click to highlight the device" Foreground="#777777"
+                                       VerticalAlignment="Center" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </Grid>
+
+        <!-- Timeline + history tabs -->
+        <Grid Grid.Row="3" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Margin="0,0,10,0" Padding="6">
+                <GroupBox.Header>
+                    <TextBlock x:Name="TimelineTitle" Text="Telemetry Timeline"/>
+                </GroupBox.Header>
+                <Canvas x:Name="TimelineCanvas" ClipToBounds="True" Background="#FAFAFA"
+                        SizeChanged="TimelineCanvas_SizeChanged"/>
+            </GroupBox>
+
+            <TabControl Grid.Column="1">
+                <TabItem Header="Command History">
+                    <ListBox x:Name="HistoryList" FontFamily="Consolas"/>
+                </TabItem>
+                <TabItem Header="Undo Stack (LIFO)">
+                    <ListBox x:Name="StackList" FontFamily="Consolas"/>
+                </TabItem>
+                <TabItem Header="Alerts / Active Errors">
+                    <DockPanel>
+                        <TextBlock x:Name="ActiveErrorsText" DockPanel.Dock="Top" Margin="4"
+                                   TextWrapping="Wrap" Foreground="#B71C1C" FontSize="12"/>
+                        <ListBox x:Name="AlertsList" FontFamily="Consolas"/>
+                    </DockPanel>
+                </TabItem>
+                <TabItem Header="Pipeline Order">
+                    <ListBox x:Name="PipelineList" FontFamily="Consolas"/>
+                </TabItem>
+            </TabControl>
+        </Grid>
+    </Grid>
+</UserControl>

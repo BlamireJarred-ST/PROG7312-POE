@@ -8,13 +8,14 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Windows.Media;
 
 namespace SmartX.Wpf;
 
 // Handles the sensor dashboard UI, including telemetry simulation, sensor registration, and engagement features.
-public partial class SensorDashboard : Window
+public partial class SensorDashboard : UserControl, INavigableView
 {
     // Storage for telemetry records displayed in the DataGrid.
     private readonly ObservableCollection<TelemetryRecord> _telemetryRecords = new();
@@ -774,12 +775,17 @@ public partial class SensorDashboard : Window
         UpdateEngagementUI();
     }
 
-    // Ensure the simulation timer is stopped when the window is closed to prevent background operations.
-    protected override void OnClosed(EventArgs e)
+    // ---- INavigableView (Part 2 navigation) ----
+    // The view is kept alive while the user visits other modules, so the simulation keeps running
+    // and no state (form values, alerts, health score, telemetry grid) is lost.
+    public Task OnNavigatedToAsync() => Task.CompletedTask;
+
+    public void OnNavigatedFrom() { }
+
+    // Called once when the application window closes: stop background work.
+    public void Shutdown()
     {
         _simulationTimer?.Stop();
-
-        base.OnClosed(e);
     }
 
     // Clears the sensor registration form inputs to their default state.

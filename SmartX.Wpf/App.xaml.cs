@@ -10,7 +10,7 @@ namespace SmartX.Wpf
         public static readonly HttpClient ApiClient = new HttpClient
         {
             // Base adress of SmartX API 
-            BaseAddress = new Uri("https://localhost:7078")
+            BaseAddress = new Uri(Environment.GetEnvironmentVariable("SMARTX_API_URL") ?? "https://localhost:7078")
         };
     }
 

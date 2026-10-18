@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+**/.vs/
+.git/
+SmartX.Wpf/
+*.user
+*.slnLaunch.user
