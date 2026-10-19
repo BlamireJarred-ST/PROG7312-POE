@@ -5,6 +5,313 @@
     "version": "1.0"
   },
   "paths": {
+    "/api/devices": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetDevices",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/devices/{mac}": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetDevice",
+        "parameters": [
+          {
+            "name": "mac",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/devices/{mac}/history": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetDeviceHistory",
+        "parameters": [
+          {
+            "name": "mac",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "take",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/devices/{mac}/disconnect": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "SimulateDisconnect",
+        "parameters": [
+          {
+            "name": "mac",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/commands": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "IssueCommand",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/commands/undo": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "UndoLastCommand",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/commands/stack": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetUndoStack",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/commands/history": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetCommandHistory",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/alerts": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetAlerts",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pipeline/status": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetPipelineStatus",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pipeline/pause": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "PausePipeline",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/pipeline/resume": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "ResumePipeline",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/activity/search": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "RecordSearch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchActivityRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/suggestions": {
+      "get": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "GetSuggestions",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/simulate/critical-alert": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "SimulateCriticalAlert",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimulateAlertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/simulate/seed-history": {
+      "post": {
+        "tags": [
+          "Part 2 - Command Stream"
+        ],
+        "operationId": "SeedHistory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedHistoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/sensors": {
       "post": {
         "tags": [
@@ -226,6 +533,69 @@
   },
   "components": {
     "schemas": {
+      "CommandRequest": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "$ref": "#/components/schemas/CommandType"
+          },
+          "issuedBy": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CommandType": {
+        "enum": [
+          "PumpOn",
+          "PumpOff",
+          "RelayOn",
+          "RelayOff",
+          "ValveOpen",
+          "ValveClose"
+        ],
+        "type": "string"
+      },
+      "SearchActivityRequest": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SeedHistoryRequest": {
+        "type": "object",
+        "properties": {
+          "alertDeviceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "commandDeviceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "command": {
+            "$ref": "#/components/schemas/CommandType"
+          },
+          "searchTerm": {
+            "type": "string",
+            "nullable": true
+          },
+          "repetitions": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "Sensor": {
         "type": "object",
         "properties": {
@@ -262,6 +632,24 @@
           "Actuator"
         ],
         "type": "string"
+      },
+      "SimulateAlertRequest": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string",
+            "nullable": true
+          },
+          "packetType": {
+            "type": "string",
+            "nullable": true
+          },
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
       },
       "TelemetryBatchRequest": {
         "type": "object",
@@ -314,5 +702,10 @@
         "additionalProperties": false
       }
     }
-  }
+  },
+  "tags": [
+    {
+      "name": "Part 2 - Command Stream"
+    }
+  ]
 }

@@ -10,13 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Part 2: real-time command stream services (singletons - they hold the live in-memory state)
-builder.Services.AddSingleton<DeviceRegistry>();     // Dictionary: live devices by MAC
-builder.Services.AddSingleton<HistoryStore>();       // SortedDictionary: readings by timestamp
-builder.Services.AddSingleton<CommandHistory>();     // Stack: manual override undo history
-builder.Services.AddSingleton<AlertCenter>();        // HashSet: active unique error states
-builder.Services.AddSingleton<ActionEngine>();       // predictive / recommendation engine
-builder.Services.AddSingleton<TelemetryPipeline>();  // Queue + PriorityQueue
+// Part 2: real-time command stream services 
+builder.Services.AddSingleton<DeviceRegistry>();        // Dictionary: live devices by MAC
+builder.Services.AddSingleton<HistoryStore>();          // SortedDictionary: readings by timestamp
+builder.Services.AddSingleton<CommandHistory>();        // Stack: manual override undo history
+builder.Services.AddSingleton<AlertCenter>();           // HashSet: active unique error states
+builder.Services.AddSingleton<ActionEngine>();          // predictive / recommendation engine
+builder.Services.AddSingleton<TelemetryPipeline>();     // Queue + PriorityQueue
 builder.Services.AddHostedService<TelemetryWorker>();
 builder.Services.AddHostedService<HeartbeatMonitor>();
 
@@ -33,8 +33,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//Data storage
-// Stores registered sensors by MAC address
+//Data storage. Stores registered sensors by MAC address
 ConcurrentDictionary<string, Sensor> sensors = new();
 
 // Stores telemetry records in memory
@@ -44,15 +43,14 @@ object telemetryLock = new();
 // Stores sensor attachments by MAC address
 ConcurrentDictionary<string, List<SensorAttachment>> sensorAttachments = new ConcurrentDictionary<string, List<SensorAttachment>>();
 
-// Nodes for the sensor 
-// Facility created for demonstration
+// Nodes for the sensor. Facility created for demonstration
 var facility = new Facility
 {
     Name = "Facility A",
     IsActive = true
 };
 
-// Zone created for demonstration
+// Zone for demonstration
 var zone = new Zone
 {
     Name = "Zone 1",
@@ -60,7 +58,7 @@ var zone = new Zone
     Parent = facility
 };
 
-// SubZone created for demonstration
+// SubZone for demonstration
 var subZone = new SubZone
 {
     Name = "Sub-Zone 1",
@@ -68,7 +66,7 @@ var subZone = new SubZone
     Parent = zone
 };
 
-// Sensor nodes created for demonstration
+// Sensor nodes for demonstration
 var sensorNode = new SensorNode
 {
     Name = "Node 1",
@@ -78,7 +76,7 @@ var sensorNode = new SensorNode
     Parent = subZone
 };
 
-// Additional sensor nodes created for demonstration
+// Additional sensor nodes for demonstration
 var sensorNode2 = new SensorNode
 {
     Name = "Node 2",
@@ -88,7 +86,7 @@ var sensorNode2 = new SensorNode
     Parent = subZone
 };
 
-// Additional sensor node created for demonstration
+// Additional sensor node for demonstration
 var sensorNode3 = new SensorNode
 {
     Name = "Node 3",
@@ -98,7 +96,7 @@ var sensorNode3 = new SensorNode
     Parent = subZone
 };
 
-// Inactive zone created for demonstration
+// Inactive zone for demonstration
 var inactiveZone = new Zone
 {
     Name = "Zone 2 (Offline)",
@@ -106,7 +104,7 @@ var inactiveZone = new Zone
     Parent = facility
 };
 
-// Inactive sensor node created for demonstration
+// Inactive sensor node for demonstration
 var offlineNode = new SensorNode
 {
     Name = "Node Offline",
@@ -210,7 +208,7 @@ app.MapPost("/api/telemetry", (TelemetryRecord record, TelemetryPipeline pipelin
 {
     record.Timestamp = DateTime.UtcNow;
 
-    // Part 2: classify and queue (FIFO queue, or priority queue when critical)
+    // Part 2: classify and queue
     pipeline.Enqueue(record);
 
     lock (telemetryLock)
@@ -402,8 +400,8 @@ app.MapPost("/api/sensors/{mac}/attachments",
         // Get or create the attachment list for this sensor
         var list = sensorAttachments.GetOrAdd(mac, _ => new List<SensorAttachment>());
 
-        lock (list)   // lock the list itself — ConcurrentDictionary protects the dict,
-        {             // but List<T> still needs a lock for concurrent adds
+        lock (list)   // lock the list itself 
+        {             
             list.Add(attachment);
         }
 

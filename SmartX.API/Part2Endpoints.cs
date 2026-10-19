@@ -3,17 +3,14 @@ using SmartX.Shared.Models;
 
 namespace SmartX.API;
 
-// All Part 2 endpoints: Real-Time Command Stream and History
+// All Part 2 endpoints
 public static class Part2Endpoints
 {
     public static void MapPart2Endpoints(this WebApplication app)
     {
         var api = app.MapGroup("/api").WithTags("Part 2 - Command Stream");
 
-        // ---------------- devices (Dictionary lookups, search + filter) ----------------
-
-        // search = free text (MAC, node, room, zone...), category = Environmental|PowerConsumption|Actuator,
-        // state = Normal|Warning|Critical|Offline
+        // search, category, state
         api.MapGet("/devices", (string? search, string? category, string? state, DeviceRegistry registry)
             => Results.Ok(registry.Query(search, category, state)))
             .WithName("GetDevices");
@@ -24,7 +21,7 @@ public static class Part2Endpoints
                 : Results.NotFound(new { message = $"No device '{mac}' is registered." }))
             .WithName("GetDevice");
 
-        // Timeline data from the SortedDictionary - always in ascending timestamp order
+        // Timeline data from the SortedDictionary
         api.MapGet("/devices/{mac}/history", (string mac, int? take, DeviceRegistry registry, HistoryStore history) =>
         {
             if (!registry.Contains(mac))
@@ -36,7 +33,7 @@ public static class Part2Endpoints
         })
         .WithName("GetDeviceHistory");
 
-        // Simulates a "node disconnected" report. The HashSet ignores repeats for the same node.
+        // Simulates a node disconnected report.
         api.MapPost("/devices/{mac}/disconnect", (string mac, DeviceRegistry registry, TelemetryPipeline pipeline) =>
         {
             if (!registry.TryGet(mac, out var device))
@@ -57,8 +54,6 @@ public static class Part2Endpoints
             });
         })
         .WithName("SimulateDisconnect");
-
-        // ---------------- manual override commands (Stack / undo) ----------------
 
         api.MapPost("/commands", (CommandRequest request, DeviceRegistry registry, CommandHistory commands, ActionEngine engine) =>
         {
@@ -84,7 +79,7 @@ public static class Part2Endpoints
         })
         .WithName("IssueCommand");
 
-        // Pops the most recent command and applies its inverse
+        // Populates most recent command and applies inverse
         api.MapPost("/commands/undo", (DeviceRegistry registry, CommandHistory commands) =>
         {
             if (!commands.TryPopForUndo(out var original) || original is null)  // Stack.Pop
@@ -118,25 +113,23 @@ public static class Part2Endpoints
         })
         .WithName("UndoLastCommand");
 
-        // Undo stack contents, most recent first (LIFO order)
+        // Undo stack content
         api.MapGet("/commands/stack", (CommandHistory commands) => Results.Ok(commands.StackSnapshot()))
             .WithName("GetUndoStack");
 
-        // Full audit trail (commands + undos), newest first
+        // Full audit trail
         api.MapGet("/commands/history", (CommandHistory commands) => Results.Ok(commands.Audit(100)))
             .WithName("GetCommandHistory");
 
-        // ---------------- alerts (HashSet) ----------------
-
+        // alerts
         api.MapGet("/alerts", (AlertCenter alerts) => Results.Ok(alerts.Snapshot(50)))
             .WithName("GetAlerts");
 
-        // ---------------- pipeline (Queue + PriorityQueue) ----------------
-
+        // pipeline status and control
         api.MapGet("/pipeline/status", (TelemetryPipeline pipeline) => Results.Ok(pipeline.GetStatus()))
             .WithName("GetPipelineStatus");
 
-        // Holds the worker so packets stack up in the queues (used to demonstrate ordering)
+        // Holds the worker so packets stack up in the queues
         api.MapPost("/pipeline/pause", (TelemetryPipeline pipeline) =>
         {
             pipeline.Pause();
@@ -151,9 +144,7 @@ public static class Part2Endpoints
         })
         .WithName("ResumePipeline");
 
-        // ---------------- predictive engine ----------------
-
-        // The dashboard reports a search when the user submits it (Enter / leaves the box)
+        // The dashboard reports a search when the user submits it
         api.MapPost("/activity/search", (SearchActivityRequest request, ActionEngine engine) =>
         {
             engine.RecordSearch(request.Term);
@@ -164,10 +155,9 @@ public static class Part2Endpoints
         api.MapGet("/suggestions", (ActionEngine engine) => Results.Ok(engine.GetSuggestions()))
             .WithName("GetSuggestions");
 
-        // ---------------- simulation helpers (testing / demo) ----------------
+        // simulation helpers 
 
-        // Sends a CRITICAL packet through the normal ingestion path; it goes to the priority queue.
-        // Body is optional: defaults to the first device and a 980 W power spike.
+        // Sends a CRITICAL packet through the normal ingestion path. Body is optional: defaults to the first device and a 980 W power spike.
         api.MapPost("/simulate/critical-alert", (SimulateAlertRequest? request, DeviceRegistry registry, TelemetryPipeline pipeline) =>
         {
             string? mac = request?.DeviceId;
@@ -206,7 +196,7 @@ public static class Part2Endpoints
         })
         .WithName("SimulateCriticalAlert");
 
-        // Trains the engine: alert on one device -> search -> command on another, repeated
+        // alert -> search -> command pattern. Body is optional: defaults to the first actuator and power device, a "TurnOff" command, and 3 repetitions.
         api.MapPost("/simulate/seed-history", (SeedHistoryRequest? request, DeviceRegistry registry, ActionEngine engine) =>
         {
             request ??= new SeedHistoryRequest();
