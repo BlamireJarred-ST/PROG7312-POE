@@ -1,17 +1,24 @@
-﻿using System.Net.Http;
+﻿
+using System;
+using System.Net.Http;
 using System.Windows;
 
 namespace SmartX.Wpf
 {
-    // Interaction logic for App.xaml
     public partial class App : Application
     {
-        // Shared HTTP vlient for the WPF application
         public static readonly HttpClient ApiClient = new HttpClient
         {
-            // Base adress of SmartX API 
-            BaseAddress = new Uri(Environment.GetEnvironmentVariable("SMARTX_API_URL") ?? "https://localhost:7078")
+            BaseAddress = new Uri("https://localhost:7078")
         };
-    }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            var loginWindow = new LoginWindow();
+            MainWindow = loginWindow;
+            loginWindow.Show();
+        }
+    }
 }
