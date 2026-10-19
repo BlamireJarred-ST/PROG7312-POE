@@ -2,9 +2,7 @@ using System.Globalization;
 
 namespace SmartX.Shared.Services;
 
-// Culture-safe parsing of telemetry values.
-// Part 1 formats numbers with the machine culture (e.g. "23,45" on en-ZA), while a Docker
-// container runs with the invariant culture. This parser accepts both "23.45" and "23,45".
+// parsing of telemetry values
 public static class ValueParser
 {
     public static bool TryParseNumber(string? text, out double value)
@@ -18,7 +16,7 @@ public static class ValueParser
 
         string s = text.Trim();
 
-        // Valve state: true/false -> 1/0
+        // Valve state
         if (bool.TryParse(s, out bool flag))
         {
             value = flag ? 1 : 0;
