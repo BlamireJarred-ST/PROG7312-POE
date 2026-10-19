@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
-        <!-- Navigation menu item: a RadioButton so exactly one module is highlighted -->
+        <!-- Navigation menu item-->
         <Style x:Key="NavButton" TargetType="RadioButton">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="14"/>
@@ -81,7 +81,7 @@
             </DockPanel>
         </Border>
 
-        <!-- Module host: views are swapped here but never destroyed -->
+        <!-- views are swapped here but never destroyed -->
         <ContentControl x:Name="ContentHost" Background="White"/>
 
     </DockPanel>

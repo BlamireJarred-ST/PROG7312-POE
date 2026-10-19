@@ -5,11 +5,10 @@ using System.Windows.Threading;
 
 namespace SmartX.Wpf
 {
-    // Main shell: left navigation menu + a content host that shows one module view at a time.
+    // left navigation menu and content host that shows one module view at a time.
     public partial class MainWindow : Window
     {
         // Each module view is created once and cached, so switching modules never loses state
-        // (form input, running simulation, selected device, undo history...).
         private readonly Dictionary<string, UserControl> _views = new();
 
         private UserControl? _current;
@@ -39,7 +38,7 @@ namespace SmartX.Wpf
                 }
             };
 
-            // Opens the first module (fires Nav_Checked)
+            // Opens the first module
             SensorsNav.IsChecked = true;
         }
 
@@ -70,8 +69,7 @@ namespace SmartX.Wpf
             }
         }
 
-        // Asynchronous navigation: swap the view instantly, then let the view refresh its data
-        // without blocking the UI thread.
+        // swap the view instantly, then let the view refresh its data without blocking the UI thread.
         private async Task NavigateAsync(string key)
         {
             var next = GetOrCreateView(key);
@@ -98,7 +96,7 @@ namespace SmartX.Wpf
             }
             catch (Exception ex)
             {
-                // A failing module must never take the shell down
+                // A failing module doesnt take the shell down
                 ApiStatusText.Text = $"● {ex.GetType().Name} while opening module";
                 ApiStatusText.Foreground = Brushes.Orange;
             }

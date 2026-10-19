@@ -14,10 +14,10 @@ using System.Windows.Media;
 
 namespace SmartX.Wpf;
 
-// Handles the sensor dashboard UI, including telemetry simulation, sensor registration, and engagement features.
+// Handles the sensor dashboard UI, including telemetry simulation, sensor registration, and engagement features
 public partial class SensorDashboard : UserControl, INavigableView
 {
-    // Storage for telemetry records displayed in the DataGrid.
+    // Storage for telemetry records displayed in the DataGrid
     private readonly ObservableCollection<TelemetryRecord> _telemetryRecords = new();
     // Timer for simulated telemetry data
     private DispatcherTimer? _simulationTimer;
@@ -85,7 +85,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         catch (HttpRequestException) { } // Dashboard will continue to function without the API connection
     }
 
-    // Initializes the dashboard, sets up the telemetry DataGrid, and loads registered sensors.
+    // Initializes the dashboard, sets up the telemetry DataGrid, and loads registered sensors
     public SensorDashboard()
     {
         InitializeComponent();
@@ -93,7 +93,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         _ = LoadRegisteredSensorsAsync();
     }
 
-    // Handles the registration of a new sensor when the "Register" button is clicked.
+    // Handles the registration of a new sensor when the "Register" button is clicked
     private async void RegisterButton_Click(object sender, RoutedEventArgs e)
     {
         // Read values from the form
@@ -237,7 +237,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         }
     }
 
-    // Handles the start/stop of telemetry simulation when the "Start Simulation" button is clicked.
+    // Handles the start/stop of telemetry simulation when the "Start Simulation" button is clicked
     private void StartSimulationButton_Click(object sender, RoutedEventArgs e)
     {
         // If simulation is already running, stop it
@@ -270,7 +270,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         StartSimulationButton.Content = "Stop Simulation";
     }
 
-    // Determines the packet type based on the sensor's category for a given MAC address.
+    // Determines the packet type based on the sensors category for a given MAC address.
     private string GetPacketTypeForMac(string mac)
     {
         // Find the sensor in the loaded list
@@ -291,10 +291,10 @@ public partial class SensorDashboard : UserControl, INavigableView
         };
     }
 
-    // Handles the generation and sending of simulated telemetry data at each timer tick.
+    // Handles the generation and sending of simulated telemetry data at each timer tick
     private async void SimulationTimer_Tick(object? sender, EventArgs e)
     {
-        // Don't start another request if the previous telemetry request is still running.
+        // Don't start another request if the previous telemetry request is still running
         if (_isBusy) return;
 
         _isBusy = true;
@@ -411,7 +411,6 @@ public partial class SensorDashboard : UserControl, INavigableView
             }
 
             // Fetch updated telemetry
-            // Request telemetry records from the API to update the DataGrid
             var getResponse = await App.ApiClient.GetAsync("/api/telemetry");
 
             if (!getResponse.IsSuccessStatusCode)
@@ -450,12 +449,12 @@ public partial class SensorDashboard : UserControl, INavigableView
         }
     }
 
-    // Handles the attachment of a file to a sensor when the "Attach File" button is clicked.
+    // Handles the attachment of a file to a sensor when the "Attach File" button is clicked
     private async void AttachFileButton_Click(object sender, RoutedEventArgs e)
     {
         string mac = MacAddressInput.Text.Trim();
 
-        // Make sure a sensor MAC address was provided.
+        // Make sure a sensor MAC address was provided
         if (string.IsNullOrWhiteSpace(mac))
         {
             MessageBox.Show(
@@ -467,7 +466,7 @@ public partial class SensorDashboard : UserControl, INavigableView
             return;
         }
 
-        // Open the file picker.
+        // Open the file picker
         var dialog = new OpenFileDialog
         {
             Title = "Select a config file, photo, or log",
@@ -487,10 +486,10 @@ public partial class SensorDashboard : UserControl, INavigableView
             string filePath = dialog.FileName;
             string fileName = Path.GetFileName(filePath);
 
-            // Read the file.
+            // Read the file
             byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
 
-            // Limit uploads to 10 MB.
+            // Limit uploads to 10 MB
             const long maxBytes = 10 * 1024 * 1024;
 
             if (fileBytes.Length > maxBytes)
@@ -504,7 +503,7 @@ public partial class SensorDashboard : UserControl, INavigableView
                 return;
             }
 
-            // Create multipart form data.
+            // Create multipart form data
             using var multipart = new MultipartFormDataContent();
 
             using var fileContent = new ByteArrayContent(fileBytes);
@@ -512,15 +511,13 @@ public partial class SensorDashboard : UserControl, INavigableView
             fileContent.Headers.ContentType =
                 new MediaTypeHeaderValue("application/octet-stream");
 
-            // IMPORTANT:
-            // "file" must match the IFormFile parameter name
-            // in the API endpoint.
+            // "file" must match the IFormFile parameter name in the API endpoint
             multipart.Add(
                 fileContent,
                 "file",
                 fileName);
 
-            // Upload to the API.
+            // Upload to the API
             var response = await App.ApiClient.PostAsync(
                 $"/api/sensors/{Uri.EscapeDataString(mac)}/attachments",
                 multipart);
@@ -538,7 +535,7 @@ public partial class SensorDashboard : UserControl, INavigableView
                 return;
             }
 
-            // Sensor doesn't exist.
+            // Sensor doesn't exist
             if (response.StatusCode ==
                 System.Net.HttpStatusCode.NotFound)
             {
@@ -552,7 +549,7 @@ public partial class SensorDashboard : UserControl, INavigableView
                 return;
             }
 
-            // Other API failure.
+            // Other API failure
             string responseBody =
                 await response.Content.ReadAsStringAsync();
 
@@ -586,7 +583,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         }
     }
 
-    // Determines the severity of a telemetry record based on its packet type and data value.
+    // Determines the severity of a telemetry record based on its packet type and data value
     private string DetermineSeverity(TelemetryRecord record)
     {
         // Evaluate the severity based on the packet type and its corresponding thresholds
@@ -639,7 +636,7 @@ public partial class SensorDashboard : UserControl, INavigableView
                     return "Normal";
                 }
 
-            // Evaluate valve state severity. A valve that is open is considered a warning.
+            // Evaluate valve state severity
             case "ValveState":
                 {
                     if (!bool.TryParse(
@@ -649,8 +646,7 @@ public partial class SensorDashboard : UserControl, INavigableView
                         return "Normal";
                     }
 
-                    // A valve that is OPEN is considered unexpected
-                    // and therefore generates a warning.
+                    // A valve that is OPEN is considered unexpected and therefore generates a warning
                     if (valveOpen)
                     {
                         return "Warning";
@@ -664,30 +660,30 @@ public partial class SensorDashboard : UserControl, INavigableView
         }
     }
 
-    // Registers an anomaly by reducing health, creating an alert, and updating the engagement UI.
+    // Registers an anomaly by reducing health, creating an alert, and updating the engagement UI
     private void RegisterAnomaly(TelemetryRecord record)
     {
         // Reduce health by 5 points and Health can never go below zero
         _healthScore = Math.Max(0, _healthScore - 5);
 
-        // Create an alert message.
+        // Create an alert message
         string alert =
             $"[{record.PacketType}] {record.DataValue} on " +
             $"{record.DeviceId} @ {record.Timestamp:HH:mm:ss}";
 
         _pendingAlerts.Add(alert);
 
-        // Refresh the engagement UI.
+        // Refresh the engagement UI
         UpdateEngagementUI();
     }
 
-    // Updates the engagement UI elements, including health score, alerts list, and badges.
+    // Updates the engagement UI elements, including health score, alerts list, and badges
     private void UpdateEngagementUI()
     {
-        // Update health score.
+        // Update health score
         HealthScoreText.Text = _healthScore.ToString();
 
-        // Change health score colour.
+        // Change health score colour
         if (_healthScore >= 80)
         {
             HealthScoreText.Foreground = Brushes.Green;
@@ -701,16 +697,16 @@ public partial class SensorDashboard : UserControl, INavigableView
             HealthScoreText.Foreground = Brushes.Red;
         }
 
-        // Refresh the pending alerts list.
+        // Refresh the pending alerts list
         AlertsListBox.ItemsSource = _pendingAlerts.ToList();
 
-        // Enable acknowledgement only when alerts exist.
+        // Enable acknowledgement only when alerts exist
         AcknowledgeButton.IsEnabled = _pendingAlerts.Count > 0;
 
-        // Check whether a new badge has been earned.
+        // Check whether a new badge has been earned
         CheckAndAwardBadges();
 
-        // Display earned badges.
+        // Display earned badges
         if (_earnedBadges.Count == 0)
         {
             BadgeText.Text = "No badges earned yet";
@@ -721,7 +717,7 @@ public partial class SensorDashboard : UserControl, INavigableView
         }
     }
 
-    // Checks if the user has earned any new badges based on their engagement and awards them accordingly.
+    // Checks if the user has earned any new badges based on their engagement and awards them accordingly
     private void CheckAndAwardBadges()
     {
         // Award badges based on the number of acknowledgements 
@@ -775,20 +771,19 @@ public partial class SensorDashboard : UserControl, INavigableView
         UpdateEngagementUI();
     }
 
-    // ---- INavigableView (Part 2 navigation) ----
-    // The view is kept alive while the user visits other modules, so the simulation keeps running
-    // and no state (form values, alerts, health score, telemetry grid) is lost.
+    // part 2 navigation
+    // The view is kept alive while the user visits other modules, so the simulation keeps running and no state (form values, alerts, health score, telemetry grid) is lost
     public Task OnNavigatedToAsync() => Task.CompletedTask;
 
     public void OnNavigatedFrom() { }
 
-    // Called once when the application window closes: stop background work.
+    // Called once when the application window closes stop background work.
     public void Shutdown()
     {
         _simulationTimer?.Stop();
     }
 
-    // Clears the sensor registration form inputs to their default state.
+    // Clears the sensor registration form inputs to their default state
     private void ClearForm()
     {
         MacAddressInput.Text = string.Empty;
