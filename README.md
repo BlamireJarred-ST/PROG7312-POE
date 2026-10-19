@@ -3,7 +3,7 @@
 ## Video Presentation
 Part 1 Presentation: https://youtu.be/mrvnyzWNOt4
 
-Part 2 Presentation: 
+Part 2 Presentation: https://youtu.be/8whVL1w-LXU
 
 # SmartX
 
