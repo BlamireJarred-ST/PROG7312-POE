@@ -2,6 +2,7 @@
 
 ## Video Presentation
 Part 1 Presentation: https://youtu.be/mrvnyzWNOt4
+
 Part 2 Presentation: 
 
 # SmartX
@@ -31,6 +32,7 @@ Part 1 — Sensor Data Ingestion and Telemetry
 - Evaluate telemetry severity and display warning/critical conditions.
 - Display system health information.
 - Attach sensor-related information and validate deployment structures.
+
 Part 2 — Real-Time Command Stream and History
 - Process incoming telemetry through background workers.
 - Queue ordinary telemetry in arrival order and prioritise critical packets.
