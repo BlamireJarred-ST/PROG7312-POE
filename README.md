@@ -61,6 +61,10 @@ Part 2 — Real-Time Command Stream and History
 2. Point the app at it before starting it (PowerShell):
    `$env:SMARTX_API_URL = "http://localhost:8080"; dotnet run --project SmartX.Wpf`
 
+## Login credentials
+User@test.com
+UserTest123!
+
 ## Using the app
 - Sensor Data Ingestion and Telemetry: press Start Simulation so telemetry flows.
 - Real-Time Command Stream and History: select a device, issue Pump/Relay/Valve commands, press Undo.
