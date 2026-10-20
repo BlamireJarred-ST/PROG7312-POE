@@ -14,11 +14,9 @@ The system allows sensors to be registered, monitored and tested through a WPF d
 
 ## The solution contains three projects:
 
-SmartX.Shared – Shared models and services
-
-SmartX.API – ASP.NET Core Minimal API backend
-
-SmartX.Wpf – WPF desktop application
+- SmartX.Shared – Shared models and services
+- SmartX.API – ASP.NET Core Minimal API backend
+- SmartX.Wpf – WPF desktop application
 
 # Main Features
 
