@@ -12,7 +12,7 @@ The system allows sensors to be registered, monitored and tested through a WPF d
 
 # Project Structure
 
-## The solution contains three projects:
+The solution contains three projects:
 
 - SmartX.Shared – Shared models and services
 - SmartX.API – ASP.NET Core Minimal API backend
