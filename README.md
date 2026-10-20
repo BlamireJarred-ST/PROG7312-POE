@@ -7,8 +7,7 @@ Part 2 Presentation: https://youtu.be/8whVL1w-LXU
 
 # SmartX
 
-# SmartX is a smart sensor monitoring system developed using C#, .NET 10, ASP.NET Core Minimal APIs and WPF.
-
+SmartX is a smart sensor monitoring system developed using C#, .NET 10, ASP.NET Core Minimal APIs and WPF.
 The system allows sensors to be registered, monitored and tested through a WPF desktop application and REST API.
 
 # Project Structure
