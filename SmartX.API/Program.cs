@@ -16,6 +16,8 @@ builder.Services.AddSingleton<HistoryStore>();          // SortedDictionary: rea
 builder.Services.AddSingleton<CommandHistory>();        // Stack: manual override undo history
 builder.Services.AddSingleton<AlertCenter>();           // HashSet: active unique error states
 builder.Services.AddSingleton<ActionEngine>();          // predictive / recommendation engine
+builder.Services.AddSingleton<TelemetryHistoryIndex>();  // Part 3: AVL tree range queries on historical telemetry
+builder.Services.AddSingleton<MeshTopologyService>();    // Part 3: mesh graph, BFS/DFS, Prim/Kruskal
 builder.Services.AddSingleton<TelemetryPipeline>();     // Queue + PriorityQueue
 builder.Services.AddHostedService<TelemetryWorker>();
 builder.Services.AddHostedService<HeartbeatMonitor>();
@@ -162,6 +164,12 @@ sensors.TryAdd("AA:BB:CC:DD:EE:03", new Sensor
     Category = SensorCategory.Actuator
 });
 
+// Part 3: extra mesh nodes (NODE-04..08) so the network topology has a meaningful graph
+foreach (var meshSensor in MeshTopologyService.ExtraSensors)
+{
+    sensors.TryAdd(meshSensor.MacAddress, meshSensor);
+}
+
 // Part 2: every pre-populated sensor becomes a live device in the registry Dictionary
 foreach (var seededSensor in sensors.Values)
 {
@@ -170,6 +178,9 @@ foreach (var seededSensor in sensors.Values)
 
 // Part 2 endpoints (devices, commands, alerts, pipeline, suggestions)
 app.MapPart2Endpoints();
+
+// Part 3 endpoints (topology, routing, historical queries)
+app.MapPart3Endpoints();
 
 // API Endpoints
 
