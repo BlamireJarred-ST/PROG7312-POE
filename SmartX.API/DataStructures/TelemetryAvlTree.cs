@@ -3,14 +3,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.DataStructures;
 
 // Self-balancing binary search tree (AVL tree) of timestamped telemetry, keyed on the timestamp.
-//
-// Why a tree: a range query ("all moisture readings between 14:00 and 16:00") only walks the branches that can
-// contain matches - O(log n + k) for k results - instead of scanning every record (O(n)).
-// Why AVL: telemetry arrives in increasing timestamp order, which turns a plain BST into a linked list (height n).
-// The AVL rotations keep the height within ~1.44 * log2(n), so every insert and query stays logarithmic.
-//
-// Several records can share one timestamp, so each tree node holds a list of the records for that instant.
-// The tree is NOT thread-safe on its own; TelemetryHistoryIndex locks around it.
 public sealed class TelemetryAvlTree
 {
     private sealed class Node
@@ -48,7 +40,7 @@ public sealed class TelemetryAvlTree
         }
     }
 
-    // ---------------------------------------------------------------- insert
+    //insert
 
     public void Insert(TelemetryRecord record)
     {
@@ -87,7 +79,7 @@ public sealed class TelemetryAvlTree
         return Rebalance(node);
     }
 
-    // ---------------------------------------------------------------- remove oldest (keeps memory bounded)
+    //remove oldest (keeps memory bounded)
 
     public void RemoveOldest()
     {
@@ -110,10 +102,7 @@ public sealed class TelemetryAvlTree
         return Rebalance(node);
     }
 
-    // ---------------------------------------------------------------- range query
-
-    // All records with from <= timestamp <= to, in ascending timestamp order.
-    // nodesVisited reports how many tree nodes were examined (to show the efficiency gain over a linear scan).
+    //range query
     public List<TelemetryRecord> Range(DateTime from, DateTime to, out int nodesVisited)
     {
         var results = new List<TelemetryRecord>();
@@ -152,7 +141,7 @@ public sealed class TelemetryAvlTree
         }
     }
 
-    // ---------------------------------------------------------------- AVL balancing
+    //AVL balancing
 
     private static int HeightOf(Node? node) => node?.Height ?? 0;
 
