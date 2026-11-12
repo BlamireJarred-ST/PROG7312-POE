@@ -102,27 +102,59 @@ An AVL tree rotates after each insert so that the heights of the two subtrees of
 Several readings can share one timestamp, so each node holds the list of readings for that instant.
 
 ```csharp
-// Insert: descend by timestamp, then rebalance on the way back up
 int comparison = record.Timestamp.CompareTo(node.Key);
-if (comparison < 0)      node.Left  = Insert(node.Left, record);
-else if (comparison > 0) node.Right = Insert(node.Right, record);
-else { node.Records.Add(record); RecordCount++; return node; }   // same timestamp
-return Rebalance(node);
 
-// Rebalance: single or double rotation when the balance factor leaves [-1, 1]
+        if (comparison < 0)
+        {
+            node.Left = Insert(node.Left, record);
+        }
+        else if (comparison > 0)
+        {
+            node.Right = Insert(node.Right, record);
+        }
+        else
+        {
+            // same timestamp: no structural change
+            node.Records.Add(record);
+            RecordCount++;
+            return node;
+        }
+
+        return Rebalance(node);
+
 int balance = HeightOf(node.Left) - HeightOf(node.Right);
-if (balance > 1)  { if (HeightOf(node.Left!.Left) < HeightOf(node.Left.Right)) node.Left = RotateLeft(node.Left);
-                    return RotateRight(node); }
-if (balance < -1) { if (HeightOf(node.Right!.Right) < HeightOf(node.Right.Left)) node.Right = RotateRight(node.Right);
-                    return RotateLeft(node); }
+
+        if (balance > 1)
+        {
+            // left-right case: rotate the left child first
+            if (HeightOf(node.Left!.Left) < HeightOf(node.Left.Right))
+            {
+                node.Left = RotateLeft(node.Left);
+            }
+
+            return RotateRight(node);
+        }
 ```
 
 ```csharp
-// Range query: skip every subtree that cannot hold a match
 visited++;
-if (from < node.Key) Collect(node.Left,  from, to, results, ref visited);
-if (node.Key >= from && node.Key <= to) results.AddRange(node.Records);
-if (to > node.Key)   Collect(node.Right, from, to, results, ref visited);
+
+        // matches can only be in the left subtree if the range starts before this node
+        if (from < node.Key)
+        {
+            Collect(node.Left, from, to, results, ref visited);
+        }
+
+        if (node.Key >= from && node.Key <= to)
+        {
+            results.AddRange(node.Records);
+        }
+
+        // ...and in the right subtree only if the range ends after this node
+        if (to > node.Key)
+        {
+            Collect(node.Right, from, to, results, ref visited);
+        }
 ```
 
 | Operation | Cost |
@@ -143,10 +175,17 @@ edges are the wireless links, and an edge weight is the transmit power cost of t
 ```csharp
 public MeshEdge AddEdge(string a, string b, double powerCost, int signalDbm)
 {
+    if (!_vertices.ContainsKey(a) || !_vertices.ContainsKey(b))
+    {
+        throw new ArgumentException("Both ends of an edge must be existing vertices.");
+    }
+
     var edge = new MeshEdge(a, b, powerCost, signalDbm);
+
     _edges.Add(edge);
-    _adjacency[a].Add(edge);   // the same edge object is listed at both endpoints
+    _adjacency[a].Add(edge);
     _adjacency[b].Add(edge);
+
     return edge;
 }
 ```
@@ -171,9 +210,12 @@ while (queue.Count > 0)
 
     foreach (var edge in graph.Neighbours(current.Id))
     {
-        if (!edge.IsUp) continue;                               // failed link
+        if (!edge.IsUp) continue;
+
         string next = edge.Other(current.Id);
-        if (!nodeUp(next) || !visited.Add(next)) continue;      // failed node or already visited
+
+        if (!nodeUp(next) || !visited.Add(next)) continue;
+
         queue.Enqueue(new TraversalStep(next, current.Hops + 1, current.Id));
     }
 }
@@ -191,22 +233,34 @@ Rooted at the gateway, each node's next hop towards the server is its parent in 
 
 ```csharp
 frontier.Enqueue(edge, edge.PowerCost);                     // candidate links keyed on power cost
+
+
 while (frontier.TryDequeue(out var cheapest, out _))
 {
-    bool aInTree = inTree.Contains(cheapest.A), bInTree = inTree.Contains(cheapest.B);
-    if (aInTree && bInTree) continue;                       // would form a cycle
+    bool aInTree = inTree.Contains(cheapest.A);
+    bool bInTree = inTree.Contains(cheapest.B);
+
+    // both ends already connected: this link would create a cycle
+    if (aInTree && bInTree) continue;
+
     string newNode = aInTree ? cheapest.B : cheapest.A;
-    inTree.Add(newNode);  tree.Add(cheapest);  AddFrontier(newNode);
+
+    inTree.Add(newNode);
+    tree.Add(cheapest);
+    AddFrontier(newNode);
 }
 ```
 
 **Kruskal's algorithm** sorts all links by cost and keeps a link only when it joins two separate groups of nodes. A `DisjointSet` (union-find with path compression and union by rank) detects cycles in near-constant time - O(E log E).
 
 ```csharp
-foreach (var edge in usable.OrderBy(e => e.PowerCost))
+// keep only the tree connected to the gateway
+foreach (var edge in forest)
 {
-    if (sets.Union(edge.A, edge.B))    // false when both ends are already connected
-        forest.Add(edge);
+    if (sets.Connected(edge.A, root))
+    {
+        tree.Add(edge);
+    }
 }
 ```
 
