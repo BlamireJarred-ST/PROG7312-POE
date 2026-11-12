@@ -29,6 +29,7 @@ public sealed class TelemetryPipeline
 
     private readonly DeviceRegistry _registry;
     private readonly HistoryStore _history;
+    private readonly TelemetryHistoryIndex _historyIndex;
     private readonly AlertCenter _alerts;
     private readonly ActionEngine _engine;
 
@@ -40,10 +41,11 @@ public sealed class TelemetryPipeline
     private long _unknownDevice;
     private volatile bool _paused;
 
-    public TelemetryPipeline(DeviceRegistry registry, HistoryStore history, AlertCenter alerts, ActionEngine engine)
+    public TelemetryPipeline(DeviceRegistry registry, HistoryStore history, TelemetryHistoryIndex historyIndex, AlertCenter alerts, ActionEngine engine)
     {
         _registry = registry;
         _history = history;
+        _historyIndex = historyIndex;
         _alerts = alerts;
         _engine = engine;
     }
@@ -168,6 +170,9 @@ public sealed class TelemetryPipeline
 
         // SortedDictionary keeps the history in timestamp order
         _history.Add(record);
+
+        // Part 3: also index the reading in the AVL tree so historical range queries stay fast
+        _historyIndex.Add(record);
 
         UpdateAlertState(device, record, lane);
     }
