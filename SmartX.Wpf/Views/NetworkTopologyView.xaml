@@ -1,11 +1,145 @@
 <UserControl x:Class="SmartX.Wpf.NetworkTopologyView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="Network Topology and Mesh Routing"
-                   FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
-        <TextBlock Text="To be implemented in the final PoE."
-                   FontSize="14" Foreground="#666666"
-                   HorizontalAlignment="Center" Margin="0,10,0,0"/>
-    </StackPanel>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="270"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title + network summary -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
+                <TextBlock x:Name="ConnectionText" Text="● Connecting..." FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                <TextBlock x:Name="SummaryText" Foreground="#555555" FontSize="12" HorizontalAlignment="Right"/>
+            </StackPanel>
+            <TextBlock Text="Network Topology and Mesh Routing" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
+        </DockPanel>
+
+        <!-- Controls -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,10">
+            <TextBlock Text="Track node (MAC or ID):" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <ComboBox x:Name="NodeSelector" Width="200" IsEditable="True" Margin="0,0,6,0"
+                      KeyDown="NodeSelector_KeyDown"/>
+            <Button Content="Track Route" Padding="10,4" Margin="0,0,16,0" Click="TrackRoute_Click"/>
+
+            <TextBlock Text="Spanning tree:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <ComboBox x:Name="MstBox" Width="90" Margin="0,0,16,0" SelectionChanged="Algorithm_Changed"/>
+
+            <TextBlock Text="Traversal:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
+            <ComboBox x:Name="TraversalBox" Width="70" Margin="0,0,6,0"/>
+            <Button Content="Run Traversal" Padding="10,4" Margin="0,0,16,0" Click="RunTraversal_Click"
+                    ToolTip="Finds every device connected to the selected node (or the gateway) and the ones that are down"/>
+
+            <Button Content="Refresh" Padding="10,4" Margin="0,0,8,0" Click="Refresh_Click"/>
+            <Button Content="Load Demo History" Padding="10,4" Click="SeedHistory_Click"
+                    ToolTip="Generates 6 hours of telemetry for every node so range queries have data"/>
+        </WrapPanel>
+
+        <!-- Graph + analysis panels -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="390"/>
+            </Grid.ColumnDefinitions>
+
+            <GroupBox Grid.Column="0" Header="Mesh Network (click a node)" Padding="6" Margin="0,0,10,0">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Bottom" Margin="0,6,0,0" TextWrapping="Wrap" FontSize="11" Foreground="#555555"
+                               Text="Square = gateway.  Green node = connected,  orange = up but isolated,  red = down.  Green line = minimum spanning tree (most power-efficient links),  grey = other link,  red dashed = failed link,  blue halo = tracked route.  Numbers on links are power cost."/>
+                    <Canvas x:Name="MeshCanvas" ClipToBounds="True" Background="#FAFAFA"
+                            SizeChanged="MeshCanvas_SizeChanged"/>
+                </DockPanel>
+            </GroupBox>
+
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <GroupBox Header="Selected Node" Padding="6" Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock x:Name="SelectedText" Text="Click a node or enter a MAC address / ID above."
+                                       TextWrapping="Wrap"/>
+                            <Button x:Name="ToggleNodeButton" Content="Mark Node Down" Margin="0,8,0,0" Padding="8,5"
+                                    IsEnabled="False" Click="ToggleNode_Click"/>
+                            <TextBlock x:Name="FeedbackText" TextWrapping="Wrap" Margin="0,6,0,0" Foreground="#555555" FontSize="12"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Routing Path to Gateway" Padding="6" Margin="0,0,0,8">
+                        <TextBlock x:Name="RouteText" Text="Select a node to see its route." TextWrapping="Wrap"/>
+                    </GroupBox>
+
+                    <GroupBox Header="Connected Devices (BFS / DFS)" Padding="6" Margin="0,0,0,8">
+                        <StackPanel>
+                            <TextBlock x:Name="TraversalSummary" Text="Press Run Traversal." TextWrapping="Wrap" Margin="0,0,0,4"/>
+                            <ListBox x:Name="TraversalList" Height="150" FontFamily="Consolas" FontSize="11"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Failure Advice (where to hop)" Padding="6">
+                        <TextBlock x:Name="FailureText" Text="No failed nodes." TextWrapping="Wrap"/>
+                    </GroupBox>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Historical telemetry log -->
+        <GroupBox Grid.Row="3" Header="Historical Telemetry Log (AVL tree range query)" Padding="6" Margin="0,10,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <WrapPanel Grid.Row="0" Margin="0,0,0,6">
+                    <TextBlock Text="Node:" VerticalAlignment="Center" Margin="0,0,4,0" FontWeight="SemiBold"/>
+                    <TextBlock x:Name="HistoryNodeText" Text="(none)" VerticalAlignment="Center" Width="80" Margin="0,0,10,0"/>
+
+                    <TextBlock Text="Range:" VerticalAlignment="Center" Margin="0,0,4,0" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="RangeBox" Width="140" Margin="0,0,10,0" SelectionChanged="RangeBox_SelectionChanged"/>
+
+                    <DatePicker x:Name="CustomDate" Width="110" Margin="0,0,6,0" IsEnabled="False"/>
+                    <TextBox x:Name="FromTime" Text="00:00" Width="50" Padding="3" Margin="0,0,4,0" IsEnabled="False"
+                             ToolTip="From time (HH:mm, local)"/>
+                    <TextBlock Text="to" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                    <TextBox x:Name="ToTime" Text="23:59" Width="50" Padding="3" Margin="0,0,10,0" IsEnabled="False"
+                             ToolTip="To time (HH:mm, local)"/>
+
+                    <TextBlock Text="Type:" VerticalAlignment="Center" Margin="0,0,4,0" FontWeight="SemiBold"/>
+                    <ComboBox x:Name="TypeBox" Width="120" Margin="0,0,10,0"/>
+
+                    <Button Content="Query History" Padding="12,4" Click="QueryHistory_Click"/>
+                </WrapPanel>
+
+                <TextBlock Grid.Row="1" x:Name="StatsText" Margin="0,0,0,6" Foreground="#1B5E20" FontWeight="SemiBold"
+                           Text="Select a sensor node, then press Query History."/>
+
+                <DataGrid Grid.Row="2" x:Name="HistoryGrid"
+                          AutoGenerateColumns="False" IsReadOnly="True" GridLinesVisibility="Horizontal">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Time (local)" Binding="{Binding Time}" Width="170"/>
+                        <DataGridTextColumn Header="Type" Binding="{Binding PacketType}" Width="130"/>
+                        <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="100"/>
+                        <DataGridTextColumn Header="Severity" Binding="{Binding Severity}" Width="*"/>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Severity}" Value="Warning">
+                                    <Setter Property="Background" Value="#FFF9C4"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Severity}" Value="Critical">
+                                    <Setter Property="Background" Value="#FFCDD2"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
+            </Grid>
+        </GroupBox>
+    </Grid>
 </UserControl>
