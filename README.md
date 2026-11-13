@@ -5,7 +5,7 @@ Part 1 Presentation: https://youtu.be/mrvnyzWNOt4
 
 Part 2 Presentation: https://youtu.be/8whVL1w-LXU
 
-Part 3 Presentation: 
+Part 3 Presentation: https://youtu.be/9idr7oRbKf0
 
 # SmartX
 
@@ -43,7 +43,7 @@ Part 2 — Real-Time Command Stream and History
 - Display suggested actions and automated insights.
 - Pause and resume telemetry pipeline processing and inspect pipeline status.
 
-  Part 3
+Part 3 - Network Topology and network routing
 - Dashboard that draws the live IoT mesh (nodes and wireless links) and which links form the minimum spanning tree.
 - Track the routing path of any node by its MAC address or identifier (for example NODE-04).
 - Breadth-first and depth-first traversal: which devices are connected to the gateway, which are down or isolated.
