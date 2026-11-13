@@ -5,7 +5,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Historical telemetry index: one AVL tree per device (found by MAC address in a Dictionary).
-// Live telemetry is added by the processing pipeline; range queries use the tree instead of scanning a list.
 public sealed class TelemetryHistoryIndex
 {
     // keeps memory bounded: the oldest readings are dropped first
@@ -54,7 +53,6 @@ public sealed class TelemetryHistoryIndex
     }
 
     // Range query: readings of one device between two instants, optionally of one packet type
-    // (e.g. all Moisture readings between 14:00 and 16:00 for NODE-04).
     public RangeQueryResult Query(string deviceId, DateTime? fromUtc, DateTime? toUtc, string? packetType, int take)
     {
         DateTime from = fromUtc ?? DateTime.MinValue;

@@ -4,14 +4,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Telemetry processing pipeline.
-//
-//   POST /api/telemetry ──► Enqueue() ──┬── Critical? ──► PriorityQueue (priority, then FIFO) ──┐
-//                                       └── otherwise ──► ConcurrentQueue (strict FIFO) ─────────┤
-//                                                                                                 ▼
-//                                  background worker: ALWAYS drains the priority queue first, then the FIFO queue
-//
-// DATA STRUCTURES: Queue (FIFO), PriorityQueue (critical bypass), plus the Dictionary / SortedDictionary / HashSet
-// services it feeds.
 public sealed class TelemetryPipeline
 {
     private const int MaxRecent = 30;
@@ -19,8 +11,7 @@ public sealed class TelemetryPipeline
     // Standard FIFO queue
     private readonly ConcurrentQueue<TelemetryRecord> _standard = new();
 
-    // Priority queue for critical alerts. Priority = (rank, sequence): lower rank is served first,
-    // the sequence number keeps packets with equal rank in FIFO order. PriorityQueue is not thread-safe -> lock.
+    // Priority queue for critical alerts. Priority = (rank, sequence)
     private readonly PriorityQueue<TelemetryRecord, (int Rank, long Seq)> _critical = new();
     private readonly object _criticalLock = new();
 
@@ -57,7 +48,7 @@ public sealed class TelemetryPipeline
     // Classifies the packet and puts it on the correct queue. Returns the lane used.
     public string Enqueue(TelemetryRecord record)
     {
-        // The server is authoritative: never trust a client that says "Normal" for a spike
+        // Never trust a client that says "Normal" for a spike
         record.Severity = SeverityEvaluator.Higher(
             record.Severity,
             SeverityEvaluator.Evaluate(record.PacketType, record.DataValue));
@@ -197,7 +188,7 @@ public sealed class TelemetryPipeline
                     Message = $"{device.NodeId}: {record.PacketType} = {record.DataValue} ({severity})"
                 };
 
-                // false => the same error state is already active: duplicate ignored
+                // false - the same error state is already active: duplicate ignored
                 if (_alerts.TryRaise(key, entry))
                 {
                     _engine.RecordAlert(device.MacAddress);
@@ -211,8 +202,7 @@ public sealed class TelemetryPipeline
         }
     }
 
-    // Used by the heartbeat monitor and the disconnect simulation endpoint.
-    // Returns true if a NEW disconnect alert was raised, false if the node was already flagged (duplicate ignored).
+    // Used by the heartbeat monitor and the disconnect simulation endpoint. Returns true if a NEW disconnect alert was raised, false if the node was already flagged (duplicate ignored)
     public bool ReportDisconnect(string mac)
     {
         if (!_registry.TryGet(mac, out var device))

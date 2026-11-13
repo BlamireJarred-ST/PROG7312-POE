@@ -2,7 +2,7 @@ using SmartX.Shared.Services;
 
 namespace SmartX.API.Services;
 
-// Server-side severity rules (matches /api/telemetry/thresholds from Part 1, plus hydroponics moisture)
+// Server-side severity rules 
 public static class SeverityEvaluator
 {
     public sealed record Limit(double Warn, double Critical, bool HigherIsWorse);
@@ -18,7 +18,7 @@ public static class SeverityEvaluator
 
     public static string Evaluate(string packetType, string dataValue)
     {
-        // An open valve is unexpected -> warning (same rule as the Part 1 dashboard)
+        // An open valve is unexpected - warning 
         if (string.Equals(packetType, "ValveState", StringComparison.OrdinalIgnoreCase))
         {
             return bool.TryParse(dataValue, out bool open) && open ? "Warning" : "Normal";
