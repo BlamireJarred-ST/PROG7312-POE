@@ -1,10 +1,6 @@
 namespace SmartX.Shared.Models;
 
-// ------------------------------------------------------------------------------------------------
-// DTOs for Part 3: Network Topology and Mesh Routing (shared by the API and the WPF client)
-// ------------------------------------------------------------------------------------------------
-
-// One vertex of the mesh graph (an ESP32 node or the gateway)
+// One vertex of the mesh graph 
 public class MeshNodeInfo
 {
     // MAC address - the unique identifier of the node
@@ -95,7 +91,7 @@ public class UnreachableEntry
 {
     public string Id { get; set; } = string.Empty;
     public string Label { get; set; } = string.Empty;
-    // Down | Offline | Isolated (no live path)
+    // Down / Offline / Isolated 
     public string Reason { get; set; } = string.Empty;
 }
 

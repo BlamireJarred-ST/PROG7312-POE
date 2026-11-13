@@ -23,7 +23,7 @@ public class PipelineStatus
     public long UnknownDevicePackets { get; set; }
     public int ActiveErrorCount { get; set; }
     public long DuplicateAlertsSuppressed { get; set; }
-    // Oldest -> newest
+    // Oldest - newest
     public List<ProcessedEntry> RecentlyProcessed { get; set; } = new();
 }
 

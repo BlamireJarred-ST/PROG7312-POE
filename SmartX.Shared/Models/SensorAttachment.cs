@@ -4,7 +4,7 @@ public class SensorAttachment
 {
     // Unique identifier for the attachment
     public string FileName { get; set; } = string.Empty;
-    // MIME type of the attachment (e.g., "image/png", "application/pdf")
+    // MIME type of the attachment 
     public string ContentType { get; set; } = string.Empty;
     // Size of the attachment file in bytes
     public long FileSizeBytes { get; set; }
