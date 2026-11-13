@@ -22,7 +22,7 @@ public class TelemetryPacket<T>
         PacketType = packetType;
     }
 
-    // Returns a string representation of the telemetry packet
+    // Returns a string representation of the telemetry packet(s)
     public override string ToString()
         => $"[{PacketType}] Station {DeviceId} @ {Timestamp:HH:mm:ss} => {Data}";
 }
