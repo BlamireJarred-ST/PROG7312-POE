@@ -2,8 +2,7 @@
 
 namespace SmartX.Shared.Services;
 
-// Raw batches of telemetry data from sensor
-// Jagged Array used to store data
+// Raw batches of telemetry data from sensor Jagged Array used to store data
 public class TelemetryBatchProcessor
 {
     // Define MAX number of batches
