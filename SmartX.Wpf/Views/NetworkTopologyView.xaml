@@ -11,7 +11,7 @@
             <RowDefinition Height="270"/>
         </Grid.RowDefinitions>
 
-        <!-- Title + network summary -->
+        <!-- Title and network summary -->
         <DockPanel Grid.Row="0" Margin="0,0,0,10">
             <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
                 <TextBlock x:Name="ConnectionText" Text="● Connecting..." FontWeight="SemiBold" HorizontalAlignment="Right"/>
@@ -40,7 +40,7 @@
                     ToolTip="Generates 6 hours of telemetry for every node so range queries have data"/>
         </WrapPanel>
 
-        <!-- Graph + analysis panels -->
+        <!-- Graph and analysis panels -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

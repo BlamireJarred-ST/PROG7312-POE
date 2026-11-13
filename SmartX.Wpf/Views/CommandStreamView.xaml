@@ -18,7 +18,7 @@
             <RowDefinition Height="230"/>
         </Grid.RowDefinitions>
 
-        <!-- Title + connection / queue status -->
+        <!-- Title and connection  -->
         <DockPanel Grid.Row="0" Margin="0,0,0,10">
             <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right">
                 <TextBlock x:Name="ConnectionText" Text="● Connecting..." FontWeight="SemiBold" HorizontalAlignment="Right"/>
@@ -27,7 +27,7 @@
             <TextBlock Text="Real-Time Command Stream and History" FontSize="20" FontWeight="Bold" VerticalAlignment="Center"/>
         </DockPanel>
 
-        <!-- Search / filter + simulation tools -->
+        <!-- Search / filter and simulation tools -->
         <WrapPanel Grid.Row="1" Margin="0,0,0,10">
             <TextBlock Text="Search:" VerticalAlignment="Center" Margin="0,0,6,0" FontWeight="SemiBold"/>
             <TextBox x:Name="SearchBox" Width="220" Padding="5" Margin="0,0,10,0"
@@ -55,7 +55,7 @@
                     ToolTip="Trains the Action Engine with a sample alert -> search -> command pattern"/>
         </WrapPanel>
 
-        <!-- Devices + override + suggestions -->
+        <!-- Devices, override and suggestions -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -167,7 +167,7 @@
             </Grid>
         </Grid>
 
-        <!-- Timeline + history tabs -->
+        <!-- Timeline and history tabs -->
         <Grid Grid.Row="3" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
