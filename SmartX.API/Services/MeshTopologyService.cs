@@ -4,14 +4,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Network Topology and Mesh Routing.
-//
-// The mesh is modelled as a weighted undirected graph (MeshGraph): vertices are the ESP32 nodes and the gateway,
-// edges are the wireless links, and an edge weight is the transmit power cost of that hop.
-//  * BFS / DFS find which devices are connected to the gateway and which are down or cut off.
-//  * Prim's / Kruskal's algorithms compute the minimum spanning tree: the set of links that connects all reachable
-//    nodes with the lowest total power. Telemetry is routed up this tree to the gateway (the central server).
-// A node counts as "down" when it was failed manually OR its device is Offline in the Part 2 device registry
-// (heartbeat timeout / disconnect report), so Parts 2 and 3 stay connected.
 public sealed class MeshTopologyService
 {
     public const string GatewayId = "AA:BB:CC:00:00:01";
@@ -39,7 +31,7 @@ public sealed class MeshTopologyService
         BuildDemoNetwork();
     }
 
-    // ------------------------------------------------------------------ demo network
+    // demo network
 
     private void BuildDemoNetwork()
     {
@@ -79,7 +71,7 @@ public sealed class MeshTopologyService
         _graph.AddEdge(n06, n08, 5.0, -70);
     }
 
-    // ------------------------------------------------------------------ node status
+    // node status
 
     // Accepts a MAC address or a node identifier such as NODE-02
     public bool SetNodeStatus(string idOrLabel, bool isUp)
@@ -106,7 +98,7 @@ public sealed class MeshTopologyService
         }
     }
 
-    // MAC address or label -> vertex id
+    // MAC address or label - vertex id
     private string? Resolve(string? idOrLabel)
     {
         if (string.IsNullOrWhiteSpace(idOrLabel))
@@ -164,7 +156,7 @@ public sealed class MeshTopologyService
         return "Up";
     }
 
-    // ------------------------------------------------------------------ routing table
+    // routing table
 
     // Routes towards the gateway: the minimum spanning tree rooted at the gateway
     private sealed class RoutingTable
@@ -172,7 +164,7 @@ public sealed class MeshTopologyService
         public List<MeshEdge> MstEdges { get; set; } = new();
         public double TotalCost { get; set; }
 
-        // child -> next hop towards the gateway (null for the gateway itself); only reachable nodes are present
+        // child - next hop towards the gateway (null for the gateway itself); only reachable nodes are present
         public Dictionary<string, string?> NextHop { get; } = new(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, int> Hops { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -288,7 +280,7 @@ public sealed class MeshTopologyService
         return path;
     }
 
-    // ------------------------------------------------------------------ queries used by the endpoints
+    // queries used by the endpoints
 
     public TopologySnapshot GetSnapshot(string? mstAlgorithm)
     {

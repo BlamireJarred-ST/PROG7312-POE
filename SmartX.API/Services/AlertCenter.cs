@@ -3,9 +3,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Active alert tracking.
-// DATA STRUCTURE: HashSet<string> of active, unique error states (e.g. "AA:BB:..|Disconnected" or
-// "AA:BB:..|Temperature|Critical"). HashSet.Add returns false for duplicates, so the same
-// disconnect / critical condition is never alerted twice until it is cleared.
 public sealed class AlertCenter
 {
     private const int MaxFeed = 200;

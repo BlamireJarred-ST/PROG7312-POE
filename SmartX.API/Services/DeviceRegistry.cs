@@ -5,7 +5,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Live registered devices.
-// DATA STRUCTURE: ConcurrentDictionary keyed by MAC address -> O(1) lookup for every incoming packet.
 public sealed class DeviceRegistry
 {
     private readonly ConcurrentDictionary<string, DeviceState> _devices =

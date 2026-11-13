@@ -3,10 +3,7 @@ using SmartX.Shared.Models;
 
 namespace SmartX.API.Services;
 
-// Historical sensor logs.
-// DATA STRUCTURE: SortedDictionary<DateTime, TelemetryRecord> per device - always iterates in timestamp
-// order, even if packets were processed out of order (e.g. a critical packet jumped the queue),
-// so the dashboard can draw the timeline without sorting.
+// Historical sensor logs
 public sealed class HistoryStore
 {
     private const int MaxPerDevice = 1000;

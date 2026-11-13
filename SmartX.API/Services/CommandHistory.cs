@@ -3,8 +3,6 @@ using SmartX.Shared.Models;
 namespace SmartX.API.Services;
 
 // Manual override command history.
-// DATA STRUCTURE: Stack<OverrideCommand> (LIFO) - Pop() returns the most recently issued command so it can be reverted.
-// A separate list keeps the full audit trail (including undo entries) for the History tab.
 public sealed class CommandHistory
 {
     private const int MaxAudit = 500;
