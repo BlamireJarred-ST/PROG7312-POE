@@ -14,8 +14,6 @@ using SmartX.Shared.Services;
 namespace SmartX.Wpf;
 
 // Real-Time Command Stream and History dashboard.
-// Polls the API asynchronously (never blocking the UI thread), keeps its selection / filters / history
-// while the user visits other modules, and lets the operator issue manual override commands.
 public partial class CommandStreamView : UserControl, INavigableView
 {
     // camelCase + case-insensitive, matching ASP.NET Core's web defaults
@@ -53,7 +51,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         _ready = true;
     }
 
-    // ------------------------------------------------------------------ navigation
+    // navigation
 
     public async Task OnNavigatedToAsync()
     {
@@ -70,7 +68,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         _searchDebounce.Stop();
     }
 
-    // ------------------------------------------------------------------ polling
+    // polling
 
     private async Task RefreshAsync()
     {
@@ -148,7 +146,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         return parts.Count == 0 ? string.Empty : "?" + string.Join("&", parts);
     }
 
-    // ------------------------------------------------------------------ rendering
+    // rendering
 
     private void SetConnection(bool connected)
     {
@@ -250,7 +248,7 @@ public partial class CommandStreamView : UserControl, INavigableView
             .ToList();
     }
 
-    // ------------------------------------------------------------------ search + filters
+    // search + filters
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -304,7 +302,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         await RefreshAsync();
     }
 
-    // ------------------------------------------------------------------ selection + timeline
+    // selection + timeline
 
     private async void DevicesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -424,7 +422,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         TimelineCanvas.Children.Add(label);
     }
 
-    // ------------------------------------------------------------------ manual override commands
+    // manual override commands
 
     private async void OverrideButton_Click(object sender, RoutedEventArgs e)
     {
@@ -489,7 +487,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         FeedbackText.Foreground = isError ? Brushes.IndianRed : Brushes.ForestGreen;
     }
 
-    // ------------------------------------------------------------------ suggestions
+    // suggestions
 
     private async void ApplySuggestion_Click(object sender, RoutedEventArgs e)
     {
@@ -544,7 +542,7 @@ public partial class CommandStreamView : UserControl, INavigableView
         DevicesGrid.ScrollIntoView(device);
     }
 
-    // ------------------------------------------------------------------ test / demo helpers
+    // test / demo helpers
 
     private async void SimulateAlert_Click(object sender, RoutedEventArgs e)
     {

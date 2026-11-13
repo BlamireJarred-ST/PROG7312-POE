@@ -771,7 +771,6 @@ public partial class SensorDashboard : UserControl, INavigableView
         UpdateEngagementUI();
     }
 
-    // part 2 navigation
     // The view is kept alive while the user visits other modules, so the simulation keeps running and no state (form values, alerts, health score, telemetry grid) is lost
     public Task OnNavigatedToAsync() => Task.CompletedTask;
 

@@ -23,9 +23,6 @@ public class HistoryRow
 }
 
 // Network Topology and Mesh Routing dashboard.
-// Draws the mesh graph on a canvas, tracks the routing path of any node (by MAC address or identifier), runs BFS/DFS
-// and the minimum spanning tree on the API, and shows a node's historical telemetry from the API's AVL tree.
-// All calls are asynchronous; the view is kept alive by the main window so no state is lost when switching tabs.
 public partial class NetworkTopologyView : UserControl, INavigableView
 {
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
@@ -62,7 +59,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         _ready = true;
     }
 
-    // ------------------------------------------------------------------ navigation
+    // navigation
 
     public async Task OnNavigatedToAsync()
     {
@@ -75,7 +72,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
 
     public void Shutdown() => _refreshTimer.Stop();
 
-    // ------------------------------------------------------------------ helpers
+    // helpers
 
     private string MstName() => MstBox.SelectedItem as string ?? "Prim";
 
@@ -106,7 +103,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         ConnectionText.Foreground = connected ? Brushes.ForestGreen : Brushes.IndianRed;
     }
 
-    // ------------------------------------------------------------------ refresh
+    // refresh
 
     private async Task RefreshAsync()
     {
@@ -269,7 +266,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         FailureText.Text = text.ToString().TrimEnd();
     }
 
-    // ------------------------------------------------------------------ drawing the graph
+    // drawing the graph
 
     private void MeshCanvas_SizeChanged(object sender, SizeChangedEventArgs e) => DrawGraph();
 
@@ -305,7 +302,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
             }
         }
 
-        // 1) route halo (under everything)
+        // 1. route halo (under everything)
         foreach (var link in _snapshot.Links)
         {
             if (!routeLinks.Contains(PairKey(link.From, link.To))) continue;
@@ -322,7 +319,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
             });
         }
 
-        // 2) links
+        // 2. links
         foreach (var link in _snapshot.Links)
         {
             Point a = PositionOf(nodes[link.From]);
@@ -362,7 +359,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
             MeshCanvas.Children.Add(cost);
         }
 
-        // 3) nodes
+        // 3. nodes
         foreach (var node in _snapshot.Nodes)
         {
             Point p = PositionOf(node);
@@ -406,7 +403,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         }
     }
 
-    // ------------------------------------------------------------------ selecting + tracking nodes
+    // selecting + tracking nodes
 
     private async Task SelectNodeAsync(string id)
     {
@@ -471,7 +468,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         await RefreshAsync();
     }
 
-    // ------------------------------------------------------------------ failures
+    // failures
 
     private async void ToggleNode_Click(object sender, RoutedEventArgs e)
     {
@@ -503,7 +500,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         await RefreshAsync();
     }
 
-    // ------------------------------------------------------------------ BFS / DFS
+    // BFS / DFS
 
     private async void RunTraversal_Click(object sender, RoutedEventArgs e)
     {
@@ -547,7 +544,7 @@ public partial class NetworkTopologyView : UserControl, INavigableView
         }
     }
 
-    // ------------------------------------------------------------------ historical log (AVL tree)
+    // historical log (AVL tree)
 
     private void RangeBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
