@@ -1,16 +1,12 @@
 namespace SmartX.API.DataStructures;
 
-// Graph algorithms for the mesh network. Every algorithm only uses nodes for which nodeUp(id) is true and links whose
-// IsUp flag is set, so a failed node or link is automatically routed around.
+// Graph algorithms for the mesh network. Every algorithm only uses nodes for which nodeUp(id) is true and links whose IsUp flag is set, so a failed node or link is automatically routed around.
 public static class MeshAlgorithms
 {
     // One visited vertex: how many hops from the start and which vertex it was reached from
     public sealed record TraversalStep(string Id, int Hops, string? Parent);
 
-    // ------------------------------------------------------------------ Breadth-first search
-    // DATA STRUCTURE: Queue<T> (FIFO) + HashSet<T> of visited nodes.
-    // Visits nodes level by level, so the first time a node is reached is via the fewest possible hops.
-    // Used to find every device connected to a gateway / subnet and the fewest-hop route to it.
+    //Breadth-first search DATA STRUCTURE: Queue<T> (FIFO) + HashSet<T> of visited nodes.
     public static List<TraversalStep> Bfs(MeshGraph graph, string start, Func<string, bool> nodeUp)
     {
         var order = new List<TraversalStep>();
@@ -44,10 +40,7 @@ public static class MeshAlgorithms
         return order;
     }
 
-    // ------------------------------------------------------------------ Depth-first search
-    // DATA STRUCTURE: Stack<T> (LIFO) + HashSet<T>. Iterative, so a long chain of nodes cannot overflow the call stack.
-    // Follows one branch as far as it goes before backtracking. Finds the same connected set as BFS, but the hop
-    // counts are along the DFS tree and are not necessarily the shortest.
+    // Depth-first searchDATA STRUCTURE: Stack<T> (LIFO) + HashSet<T>. Iterative, so a long chain of nodes cannot overflow the call stack.
     public static List<TraversalStep> Dfs(MeshGraph graph, string start, Func<string, bool> nodeUp)
     {
         var order = new List<TraversalStep>();
@@ -84,11 +77,7 @@ public static class MeshAlgorithms
         return order;
     }
 
-    // ------------------------------------------------------------------ Prim's algorithm
-    // DATA STRUCTURE: PriorityQueue<edge, powerCost> (a min-heap) + HashSet<T> of nodes already in the tree.
-    // Grows a tree outwards from the root (the gateway): always add the cheapest link that reaches a new node.
-    // The result is the minimum spanning tree of the root's connected component: the set of links that connects
-    // every reachable node with the smallest possible total transmit power.
+    // Prim's algorithm DATA STRUCTURE: PriorityQueue<edge, powerCost> (a min-heap) + HashSet<T> of nodes already in the tree.
     public static List<MeshEdge> Prim(MeshGraph graph, string root, Func<string, bool> nodeUp)
     {
         var tree = new List<MeshEdge>();
@@ -132,10 +121,7 @@ public static class MeshAlgorithms
         return tree;
     }
 
-    // ------------------------------------------------------------------ Kruskal's algorithm
-    // DATA STRUCTURE: edge list sorted by weight + DisjointSet (union-find).
-    // Considers links from cheapest to most expensive and keeps a link only if it joins two separate groups of nodes.
-    // Returns the tree that contains the root (gateway); it has the same total cost as Prim's result.
+    // Kruskal's algorithm DATA STRUCTURE: edge list sorted by weight + DisjointSet (union-find).
     public static List<MeshEdge> Kruskal(MeshGraph graph, string root, Func<string, bool> nodeUp)
     {
         var tree = new List<MeshEdge>();

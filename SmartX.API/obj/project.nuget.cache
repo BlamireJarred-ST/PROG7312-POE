@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "CK+b1uhsiTk=",
+  "dgSpecHash": "0smrtul5zO4=",
   "success": true,
-  "projectFilePath": "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.API\\SmartX.API.csproj",
+  "projectFilePath": "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.API\\SmartX.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\USER-PC\\.nuget\\packages\\microsoft.aspnetcore.openapi\\10.0.12\\microsoft.aspnetcore.openapi.10.0.12.nupkg.sha512",
     "C:\\Users\\USER-PC\\.nuget\\packages\\microsoft.extensions.apidescription.server\\10.0.0\\microsoft.extensions.apidescription.server.10.0.0.nupkg.sha512",

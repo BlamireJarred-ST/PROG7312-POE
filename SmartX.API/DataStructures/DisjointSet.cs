@@ -1,7 +1,6 @@
 namespace SmartX.API.DataStructures;
 
 // Union-Find (disjoint set) used by Kruskal's algorithm to detect cycles in near-constant time.
-// Path compression + union by rank.
 public sealed class DisjointSet
 {
     private readonly Dictionary<string, string> _parent = new(StringComparer.OrdinalIgnoreCase);

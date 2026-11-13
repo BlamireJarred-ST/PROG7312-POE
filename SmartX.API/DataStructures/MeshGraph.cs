@@ -31,9 +31,6 @@ public sealed class MeshEdge
 }
 
 // The physical IoT mesh modelled as an undirected weighted graph.
-// DATA STRUCTURE: adjacency list - Dictionary<vertexId, List<edge>>. Each edge appears in the list of both of its
-// endpoints, so visiting all neighbours of a node is O(degree) instead of scanning every edge in the network.
-// Vertices are looked up by MAC address in a Dictionary (O(1)).
 public sealed class MeshGraph
 {
     private readonly Dictionary<string, MeshVertex> _vertices = new(StringComparer.OrdinalIgnoreCase);

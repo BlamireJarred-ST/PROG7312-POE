@@ -520,11 +520,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.API\\SmartX.API.csproj",
+      "projectUniqueName": "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.API\\SmartX.API.csproj",
       "projectName": "SmartX.API",
-      "projectPath": "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.API\\SmartX.API.csproj",
+      "projectPath": "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.API\\SmartX.API.csproj",
       "packagesPath": "C:\\Users\\USER-PC\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.API\\obj\\",
+      "outputPath": "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -546,8 +546,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.Shared\\SmartX.Shared.csproj": {
-              "projectPath": "C:\\Users\\USER-PC\\OneDrive\\Desktop\\Uni work\\in progress\\PROG7312\\SmartX.POE\\SmartX.Shared\\SmartX.Shared.csproj"
+            "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.Shared\\SmartX.Shared.csproj": {
+              "projectPath": "C:\\Users\\USER-PC\\OneDrive\\Documents\\GitHub\\PROG7312-POE\\SmartX.Shared\\SmartX.Shared.csproj"
             }
           }
         }
