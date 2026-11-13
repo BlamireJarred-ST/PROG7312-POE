@@ -12,10 +12,9 @@ public static class Part3Endpoints
     {
         var api = app.MapGroup("/api").WithTags("Part 3 - Network Topology");
 
-        // ---------------- mesh graph, spanning tree ----------------
+        //mesh graph, spanning tree 
 
         // The whole mesh: nodes, links, and which links are in the minimum spanning tree.
-        // mst = prim | kruskal
         api.MapGet("/topology", (string? mst, MeshTopologyService topology) =>
             Results.Ok(topology.GetSnapshot(mst)))
             .WithName("GetTopology");
@@ -46,10 +45,9 @@ public static class Part3Endpoints
             Results.Ok(topology.GetFailureAdvice(mst)))
             .WithName("GetFailureAdvice");
 
-        // ---------------- historical telemetry (AVL tree range queries) ----------------
+        // historical telemetry (AVL tree range queries)
 
         // Readings of one device between two instants, optionally of one packet type.
-        // Example: /api/history/AA:BB:CC:DD:EE:04?from=2026-11-12T12:00:00Z&to=2026-11-12T14:00:00Z&type=Moisture
         api.MapGet("/history/{mac}", (
                 string mac,
                 [FromQuery(Name = "from")] DateTime? fromTime,
@@ -105,7 +103,7 @@ public static class Part3Endpoints
             : date.ToUniversalTime();
     }
 
-    // ---------------------------------------------------------------- demo history generator
+    // demo history generator
 
     private static string PacketTypeFor(DeviceState device)
     {

@@ -196,7 +196,7 @@ public static class Part2Endpoints
         })
         .WithName("SimulateCriticalAlert");
 
-        // alert -> search -> command pattern. Body is optional: defaults to the first actuator and power device, a "TurnOff" command, and 3 repetitions.
+        // alert - search - command pattern. Body is optional: defaults to the first actuator and power device, a "TurnOff" command, and 3 repetitions.
         api.MapPost("/simulate/seed-history", (SeedHistoryRequest? request, DeviceRegistry registry, ActionEngine engine) =>
         {
             request ??= new SeedHistoryRequest();
