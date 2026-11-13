@@ -4,15 +4,6 @@ using SmartX.Shared.Services;
 namespace SmartX.API.Services;
 
 // Predictive Action and Recommendation Engine.
-//
-// 1. PATTERN ANALYSIS  - every alert, search and manual command is an "event token". A nested Dictionary
-//    (token -> next token -> count) is a first-order transition-frequency model (a simple Markov chain).
-//    Each new event is linked to the previous few events, so "Alert on Moisture B" followed by
-//    "Command PumpOn on Pump A" three times becomes a strong learned link.
-// 2. ALGORITHMIC SUGGESTION - when a device currently has an alert (or after the user's last action), the
-//    most frequent follow-up events (support >= 2) are suggested, ranked by confidence = count / total.
-// 3. HEURISTICS - problem devices are highlighted before the user searches: critical / warning / offline
-//    state, a least-squares trend that projects a reading to cross its critical limit soon, and a flapping valve.
 public sealed class ActionEngine
 {
     private const int MinSupport = 2;
@@ -31,7 +22,7 @@ public sealed class ActionEngine
         _history = history;
     }
 
-    // ---------- event recording ----------
+    // event recording
 
     public void RecordAlert(string mac) => Record($"Alert:{mac}");
 
@@ -75,7 +66,7 @@ public sealed class ActionEngine
         }
     }
 
-    // ---------- suggestions ----------
+    // suggestions
 
     public List<Suggestion> GetSuggestions()
     {
@@ -93,7 +84,7 @@ public sealed class ActionEngine
 
         string Name(string mac) => byMac.TryGetValue(mac, out var d) ? d.NodeId : mac;
 
-        // 1. learned patterns ------------------------------------------------
+        // 1. learned patterns
         var contexts = devices
             .Where(d => d.AlertState != "Normal")
             .Select(d => $"Alert:{d.MacAddress}")
@@ -169,7 +160,7 @@ public sealed class ActionEngine
             }
         }
 
-        // 2. problem devices -------------------------------------------------
+        // 2. problem devices
         foreach (var d in devices)
         {
             switch (d.AlertState)
